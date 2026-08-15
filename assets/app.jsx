@@ -880,6 +880,23 @@ function App() {
     }
   };
 
+  /* 右下角「本地打开」按钮:本机模式下用系统文件管理器打开当前目录 */
+  const openLocalManager = async () => {
+    if (remoteMode) return;
+    const path = currentPath || (data && data.root_path) || '';
+    try {
+      const res = await fetch(buildApiUrl('open_location', { path }));
+      const result = await res.json();
+      if (!result.success) {
+        showToast('打开失败: ' + (result.error || '未知错误'), 'error');
+      } else {
+        showToast('已打开本地文件管理器', 'success');
+      }
+    } catch (e) {
+      showToast('打开失败: ' + e.message, 'error');
+    }
+  };
+
   const ctxCopy = async () => {
     const item = ctxMenu && ctxMenu.item;
     setCtxMenu(null);
@@ -1121,6 +1138,12 @@ function App() {
         onDelete={ctxDelete}
         onProperty={ctxProperty}
       />
+      {!remoteMode && (
+        <button className="open-local-float" onClick={openLocalManager} title="在本地文件管理器中打开当前目录">
+          <i className="fas fa-folder-open" aria-hidden="true" />
+          <span>本地打开</span>
+        </button>
+      )}
       <PreviewOverlay preview={preview} onClose={() => setPreview(null)} />
       <ConfirmDialog item={confirmTarget} onCancel={() => setConfirmTarget(null)} onConfirm={confirmDelete} />
       <PropertyDialog item={propertyItem} onClose={() => setPropertyItem(null)} />

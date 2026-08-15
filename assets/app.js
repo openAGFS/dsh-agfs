@@ -626,6 +626,21 @@ function App() {
       showToast("打开失败: " + e.message, "error");
     }
   };
+  const openLocalManager = async () => {
+    if (remoteMode) return;
+    const path = currentPath || data && data.root_path || "";
+    try {
+      const res = await fetch(buildApiUrl("open_location", { path }));
+      const result = await res.json();
+      if (!result.success) {
+        showToast("打开失败: " + (result.error || "未知错误"), "error");
+      } else {
+        showToast("已打开本地文件管理器", "success");
+      }
+    } catch (e) {
+      showToast("打开失败: " + e.message, "error");
+    }
+  };
   const ctxCopy = async () => {
     const item = ctxMenu && ctxMenu.item;
     setCtxMenu(null);
@@ -852,6 +867,6 @@ function App() {
       onDelete: ctxDelete,
       onProperty: ctxProperty
     }
-  ), /* @__PURE__ */ React.createElement(PreviewOverlay, { preview, onClose: () => setPreview(null) }), /* @__PURE__ */ React.createElement(ConfirmDialog, { item: confirmTarget, onCancel: () => setConfirmTarget(null), onConfirm: confirmDelete }), /* @__PURE__ */ React.createElement(PropertyDialog, { item: propertyItem, onClose: () => setPropertyItem(null) }), /* @__PURE__ */ React.createElement(NewFolderDialog, { open: newFolderOpen, onClose: () => setNewFolderOpen(false), onCreate: handleCreateFolder }));
+  ), !remoteMode && /* @__PURE__ */ React.createElement("button", { className: "open-local-float", onClick: openLocalManager, title: "在本地文件管理器中打开当前目录" }, /* @__PURE__ */ React.createElement("i", { className: "fas fa-folder-open", "aria-hidden": "true" }), /* @__PURE__ */ React.createElement("span", null, "本地打开")), /* @__PURE__ */ React.createElement(PreviewOverlay, { preview, onClose: () => setPreview(null) }), /* @__PURE__ */ React.createElement(ConfirmDialog, { item: confirmTarget, onCancel: () => setConfirmTarget(null), onConfirm: confirmDelete }), /* @__PURE__ */ React.createElement(PropertyDialog, { item: propertyItem, onClose: () => setPropertyItem(null) }), /* @__PURE__ */ React.createElement(NewFolderDialog, { open: newFolderOpen, onClose: () => setNewFolderOpen(false), onCreate: handleCreateFolder }));
 }
 ReactDOM.createRoot(document.getElementById("root")).render(/* @__PURE__ */ React.createElement(App, null));

@@ -473,12 +473,18 @@ describe('real Loader composition', () => {
     expect(jsx.body).toContain('TEXT_PREVIEW_EXTS')
     expect(jsx.body).toContain('isTextPreview')
     expect(jsx.body).toContain('自定义根')
+    // The local-mode floating button opens the system file manager at the
+    // current directory; its marker lives in the served source and bundle.
+    expect(jsx.body).toContain('open-local-float')
+    expect(jsx.body).toContain('本地打开')
     // The precompiled bundle the page actually loads carries the same markers.
     const app = await http(ctx, 'GET', '/dsh-agfs/app.js')
     expect(app.status).toBe(200)
     expect(app.body).toContain('isTextPreview')
     expect(app.body).toContain('自定义根')
     expect(app.body).toContain('__DSH_AGFS__')
+    expect(app.body).toContain('open-local-float')
+    expect(app.body).toContain('本地打开')
     const react = await http(ctx, 'GET', '/dsh-agfs/vendor/react.production.min.js')
     expect(react.status).toBe(200)
     const reactDom = await http(ctx, 'GET', '/dsh-agfs/vendor/react-dom.production.min.js')

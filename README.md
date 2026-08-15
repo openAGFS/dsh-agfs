@@ -16,6 +16,7 @@ English | [中文](README.zh.md)
 
 - **Full file browser** — list/search, text preview (markdown, code, logs), image preview, and create/rename/copy/delete folders.
 - **`/dsh-agfs` command** — opens the file browser in the system default browser and **automatically navigates to the current session's workspace directory** (session cwd); switch workspaces and it follows.
+- **Local-open button** — in local mode, a floating button in the bottom-right opens the system file manager at the current directory.
 - **`browse_files` model tool** — the model can list or recursively search the browser root directly.
 - **Path safety** — browsing confined to the root, `strictRoot` real-path checks, symlink/junction escape interception (clean 400 envelope), `readOnly` mode, `remoteMode`.
 - **Offline frontend** — React/ReactDOM ship in the package; boots without a CDN or Babel.
