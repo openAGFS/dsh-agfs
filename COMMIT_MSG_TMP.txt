@@ -1,0 +1,9 @@
+style: Win10 theme uses the Segoe MDL2 Assets icon font
+
+All Font Awesome glyphs in the Win10 theme now render as Windows 10's
+official Segoe MDL2 Assets icons (Windows ships the font; falls back to
+Segoe UI Symbol): toolbar (nav E700, search E721, new folder E8F4, size
+modes E922/E740/E92D, theme E790/E975), context menu (open E838, open
+location E8A7, analyze E99A, copy E8C8, rename E70F, delete E74D, info
+E946), dialog download E896, and the local-open float (E838). Covers both
+fa-solid and fas classes.

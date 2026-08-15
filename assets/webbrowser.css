@@ -2341,3 +2341,44 @@
             transform: none;
         }
 
+        /* ---- Win10 官方图标:Font Awesome 替换为 Segoe MDL2 Assets(Windows 内置) ----
+           工具栏/菜单/悬浮按钮的实心 FA 图标在 Win10 主题下换成 MDL2 线性图标,
+           码点取自微软 Segoe MDL2 Assets 官方表(learn.microsoft.com/.../segoe-ui-symbol-font)。 */
+        .browser.theme-win10 .fa,
+        .browser.theme-win10 .fa-solid,
+        .browser.theme-win10 .fas,
+        body.theme-win10 .fa,
+        body.theme-win10 .fa-solid,
+        body.theme-win10 .fas {
+            font-family: 'Segoe MDL2 Assets', 'Segoe UI Symbol', sans-serif !important;
+            font-weight: 400 !important;
+        }
+        /* 工具栏:菜单(☰)/搜索/新建文件夹/尺寸三档/主题 */
+        .browser.theme-win10 .fa-bars::before,
+        body.theme-win10 .fa-bars::before { content: '\E700'; }        /* GlobalNavButton */
+        .browser.theme-win10 .fa-magnifying-glass::before,
+        body.theme-win10 .fa-magnifying-glass::before { content: '\E721'; } /* Search */
+        .browser.theme-win10 .fa-folder-plus::before,
+        body.theme-win10 .fa-folder-plus::before { content: '\E8F4'; }   /* NewFolder */
+        .browser.theme-win10 .fa-window-restore::before,
+        body.theme-win10 .fa-window-restore::before { content: '\E922'; } /* ChromeMaximize(视图大小) */
+        .browser.theme-win10 .fa-expand-arrows-alt::before,
+        body.theme-win10 .fa-expand-arrows-alt::before { content: '\E740'; } /* FullScreen(整个视图) */
+        .browser.theme-win10 .fa-compress::before,
+        body.theme-win10 .fa-compress::before { content: '\E92D'; }      /* ChromeFullScreen(退出) */
+        .browser.theme-win10 .fa-palette::before,
+        body.theme-win10 .fa-palette::before { content: '\E790'; }      /* Color(现代主题) */
+        .browser.theme-win10 .fa-desktop::before,
+        body.theme-win10 .fa-desktop::before { content: '\E975'; }      /* Devices2(Win10 主题) */
+        /* 右键菜单 */
+        body.theme-win10 .fa-folder-open::before { content: '\E838'; }  /* FolderOpen */
+        body.theme-win10 .fa-external-link-alt::before { content: '\E8A7'; } /* OpenInNewWindow */
+        body.theme-win10 .fa-robot::before { content: '\E99A'; }        /* Robot(一键AI分析) */
+        body.theme-win10 .fa-copy::before { content: '\E8C8'; }         /* Copy */
+        body.theme-win10 .fa-edit::before { content: '\E70F'; }         /* Edit */
+        body.theme-win10 .fa-trash-alt::before { content: '\E74D'; }    /* Delete */
+        body.theme-win10 .fa-info-circle::before { content: '\E946'; }  /* Info */
+        /* 对话框 / 悬浮按钮 */
+        body.theme-win10 .fa-download::before { content: '\E896'; }     /* Download */
+        body.theme-win10 .open-local-float .fa-folder-open::before { content: '\E838'; }
+
