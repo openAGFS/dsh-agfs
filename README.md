@@ -127,12 +127,14 @@ The frontend source is `assets/app.jsx`; its compiled form `assets/app.js` (clas
 
 ## Publishing
 
+Releases are tag-driven: pushing a `v*` tag triggers GitHub Actions (`.github/workflows/publish.yml`) to publish to npm. To keep release noise low, **one release is cut every 10 commits to `main`** — run the rule helper:
+
 ```sh
-pnpm version patch   # or minor/major; sets package.json version and a git tag
-git push --follow-tags
+pnpm run release            # cut a release only when 10 commits have accumulated
+pnpm run release -- --dry-run   # preview without writing or pushing
 ```
 
-Pushing a `v*` tag triggers GitHub Actions (`.github/workflows/publish.yml`) to publish to npm. The repository needs an `NPM_TOKEN` secret. The package declares the published `@deepseek-ai/dsh-*` harness packages as peers, so a published install resolves them from npm.
+`scripts/release.mjs` counts the commits since the last `v*` tag; below the threshold it prints the progress and does nothing, at the threshold it bumps the patch version, commits `chore: release vX.Y.Z`, creates the tag, and pushes `main` + the tag. The repository needs an `NPM_TOKEN` secret. The package declares the published `@deepseek-ai/dsh-*` harness packages as peers, so a published install resolves them from npm.
 
 ## Star History
 
