@@ -521,7 +521,7 @@ function FileList({ data, items, viewMode, searching, searchLoading, searchResul
 
 /* ============================ 右键菜单 ============================ */
 
-function ContextMenu({ menu, remoteMode, menuRef, onOpen, onOpenLocation, onCopy, onRename, onDelete, onProperty }) {
+function ContextMenu({ menu, remoteMode, menuRef, onOpen, onOpenLocation, onAnalyze, onCopy, onRename, onDelete, onProperty }) {
   const item = menu ? menu.item : null;
   const isParent = !!(item && item.type === 'parent');
   return (
@@ -531,6 +531,9 @@ function ContextMenu({ menu, remoteMode, menuRef, onOpen, onOpenLocation, onCopy
       </div>
       <div className={`context-menu-item${remoteMode ? ' disabled' : ''}`} onClick={onOpenLocation}>
         <i className="fas fa-external-link-alt" /><span>打开所在目录</span>
+      </div>
+      <div className={`context-menu-item${remoteMode ? ' disabled' : ''}`} onClick={onAnalyze}>
+        <i className="fas fa-robot" /><span>一键AI分析</span>
       </div>
       <div className={`context-menu-item${(remoteMode || isParent) ? ' disabled' : ''}`} onClick={onCopy}>
         <i className="fas fa-copy" /><span>复制</span>
@@ -702,6 +705,62 @@ function NewFolderDialog({ open, onClose, onCreate }) {
   );
 }
 
+/* ============================ 一键AI分析对话框 ============================ */
+
+function AnalyzeDialog({ item, onClose, onStart }) {
+  const [requirement, setRequirement] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  if (!item) return null;
+  const submit = async () => {
+    const text = requirement.trim();
+    if (!text || busy) return;
+    setBusy(true);
+    setError('');
+    try {
+      await onStart(text);
+      onClose();
+    } catch (e) {
+      setError(e.message || '启动失败');
+      setBusy(false);
+    }
+  };
+  return (
+    <div className="modal-overlay active" onClick={busy ? undefined : onClose}>
+      <div className="modal" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-header">
+          <div className="modal-title">一键AI分析</div>
+          <button className="modal-close" onClick={onClose} disabled={busy}>&times;</button>
+        </div>
+        <div className="modal-body">
+          <div className="analyze-target" title={item.path || item.name}>
+            <i className="fas fa-robot" /><span>{item.name}</span>
+          </div>
+          <textarea
+            className="ai-form-input analyze-input"
+            placeholder="输入你的需求，例如：分析这个项目的技术架构和代码质量"
+            value={requirement}
+            autoFocus
+            rows={5}
+            onChange={(e) => setRequirement(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) submit();
+              if (e.key === 'Escape') onClose();
+            }}
+          />
+          {error && <div className="analyze-error">{error}</div>}
+        </div>
+        <div className="modal-footer">
+          <button className="modal-btn modal-btn-cancel" onClick={onClose} disabled={busy}>取消</button>
+          <button className="modal-btn modal-btn-download" onClick={submit} disabled={busy || !requirement.trim()}>
+            {busy ? '启动中...' : '开始分析'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /** 安全读取视图模式(Edge 跟踪防护等场景可能禁止 localStorage 访问) */
 function loadViewMode() {
   try { return localStorage.getItem('fileBrowserViewMode') || 'list'; } catch (e) { return 'list'; }
@@ -733,6 +792,7 @@ function App() {
   const [confirmTarget, setConfirmTarget] = useState(null);
   const [propertyItem, setPropertyItem] = useState(null);
   const [newFolderOpen, setNewFolderOpen] = useState(false);
+  const [analyzeItem, setAnalyzeItem] = useState(null);
   const [rename, setRename] = useState(null);
   const [highlightPath, setHighlightPath] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(false); // 窄屏侧边栏抽屉
@@ -900,6 +960,21 @@ function App() {
     } catch (e) {
       showToast('打开失败: ' + e.message, 'error');
     }
+  };
+
+  /* 一键AI分析:建工作区 + 新会话并唤醒智能体分析当前文件/文件夹 */
+  const startAnalysis = async (requirement) => {
+    const item = analyzeItem;
+    if (!item || remoteMode) return;
+    const path = getFullPath(item.path || item.name);
+    const res = await fetch(buildApiUrl('analyze', {}), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ path, requirement }),
+    });
+    const result = await res.json().catch(() => ({ success: false, error: '响应解析失败' }));
+    if (!result.success) throw new Error(result.error || '分析启动失败');
+    showToast('分析已启动，请在 dsh 对话框中查看', 'success');
   };
 
   const ctxCopy = async () => {
@@ -1148,6 +1223,7 @@ function App() {
         menuRef={menuRef}
         onOpen={ctxOpen}
         onOpenLocation={ctxOpenLocation}
+        onAnalyze={() => { const it = ctxMenu && ctxMenu.item; setCtxMenu(null); if (it) setAnalyzeItem(it); }}
         onCopy={ctxCopy}
         onRename={() => { const it = ctxMenu && ctxMenu.item; setCtxMenu(null); if (it && it.type !== 'parent') startRename(it); }}
         onDelete={ctxDelete}
@@ -1163,6 +1239,7 @@ function App() {
       <ConfirmDialog item={confirmTarget} onCancel={() => setConfirmTarget(null)} onConfirm={confirmDelete} />
       <PropertyDialog item={propertyItem} onClose={() => setPropertyItem(null)} />
       <NewFolderDialog open={newFolderOpen} onClose={() => setNewFolderOpen(false)} onCreate={handleCreateFolder} />
+      <AnalyzeDialog item={analyzeItem} onClose={() => setAnalyzeItem(null)} onStart={startAnalysis} />
     </React.Fragment>
   );
 }

@@ -914,6 +914,36 @@
             background: #3451d6;
         }
 
+        /* 一键AI分析对话框 */
+        .analyze-target {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            margin-bottom: 12px;
+            background: #eef2ff;
+            border-radius: 10px;
+            color: #4338ca;
+            font-size: 14px;
+            font-weight: 600;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .analyze-target i { font-size: 15px; }
+        .analyze-input {
+            width: 100%;
+            resize: vertical;
+            min-height: 110px;
+            line-height: 1.6;
+            font-family: inherit;
+        }
+        .analyze-error {
+            margin-top: 10px;
+            color: #dc2626;
+            font-size: 13px;
+        }
+
         /* 右键菜单 */
         .context-menu {
             position: fixed;

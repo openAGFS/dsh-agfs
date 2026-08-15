@@ -402,10 +402,10 @@ function FileList({
     }
   )), !items.length && /* @__PURE__ */ React.createElement("div", { className: "empty-folder" }, "此文件夹为空"));
 }
-function ContextMenu({ menu, remoteMode, menuRef, onOpen, onOpenLocation, onCopy, onRename, onDelete, onProperty }) {
+function ContextMenu({ menu, remoteMode, menuRef, onOpen, onOpenLocation, onAnalyze, onCopy, onRename, onDelete, onProperty }) {
   const item = menu ? menu.item : null;
   const isParent = !!(item && item.type === "parent");
-  return /* @__PURE__ */ React.createElement("div", { className: `context-menu${menu ? " active" : ""}`, ref: menuRef, style: menu ? { left: menu.x, top: menu.y } : void 0 }, /* @__PURE__ */ React.createElement("div", { className: "context-menu-item", onClick: onOpen }, /* @__PURE__ */ React.createElement("i", { className: "fas fa-folder-open" }), /* @__PURE__ */ React.createElement("span", null, "打开")), /* @__PURE__ */ React.createElement("div", { className: `context-menu-item${remoteMode ? " disabled" : ""}`, onClick: onOpenLocation }, /* @__PURE__ */ React.createElement("i", { className: "fas fa-external-link-alt" }), /* @__PURE__ */ React.createElement("span", null, "打开所在目录")), /* @__PURE__ */ React.createElement("div", { className: `context-menu-item${remoteMode || isParent ? " disabled" : ""}`, onClick: onCopy }, /* @__PURE__ */ React.createElement("i", { className: "fas fa-copy" }), /* @__PURE__ */ React.createElement("span", null, "复制")), /* @__PURE__ */ React.createElement("div", { className: "context-menu-divider" }), /* @__PURE__ */ React.createElement("div", { className: `context-menu-item${isParent ? " disabled" : ""}`, onClick: onRename }, /* @__PURE__ */ React.createElement("i", { className: "fas fa-edit" }), /* @__PURE__ */ React.createElement("span", null, "重命名")), /* @__PURE__ */ React.createElement("div", { className: `context-menu-item${isParent ? " disabled" : ""}`, onClick: onDelete }, /* @__PURE__ */ React.createElement("i", { className: "fas fa-trash-alt" }), /* @__PURE__ */ React.createElement("span", null, "删除")), /* @__PURE__ */ React.createElement("div", { className: "context-menu-divider" }), /* @__PURE__ */ React.createElement("div", { className: "context-menu-item", onClick: onProperty }, /* @__PURE__ */ React.createElement("i", { className: "fas fa-info-circle" }), /* @__PURE__ */ React.createElement("span", null, "属性")));
+  return /* @__PURE__ */ React.createElement("div", { className: `context-menu${menu ? " active" : ""}`, ref: menuRef, style: menu ? { left: menu.x, top: menu.y } : void 0 }, /* @__PURE__ */ React.createElement("div", { className: "context-menu-item", onClick: onOpen }, /* @__PURE__ */ React.createElement("i", { className: "fas fa-folder-open" }), /* @__PURE__ */ React.createElement("span", null, "打开")), /* @__PURE__ */ React.createElement("div", { className: `context-menu-item${remoteMode ? " disabled" : ""}`, onClick: onOpenLocation }, /* @__PURE__ */ React.createElement("i", { className: "fas fa-external-link-alt" }), /* @__PURE__ */ React.createElement("span", null, "打开所在目录")), /* @__PURE__ */ React.createElement("div", { className: `context-menu-item${remoteMode ? " disabled" : ""}`, onClick: onAnalyze }, /* @__PURE__ */ React.createElement("i", { className: "fas fa-robot" }), /* @__PURE__ */ React.createElement("span", null, "一键AI分析")), /* @__PURE__ */ React.createElement("div", { className: `context-menu-item${remoteMode || isParent ? " disabled" : ""}`, onClick: onCopy }, /* @__PURE__ */ React.createElement("i", { className: "fas fa-copy" }), /* @__PURE__ */ React.createElement("span", null, "复制")), /* @__PURE__ */ React.createElement("div", { className: "context-menu-divider" }), /* @__PURE__ */ React.createElement("div", { className: `context-menu-item${isParent ? " disabled" : ""}`, onClick: onRename }, /* @__PURE__ */ React.createElement("i", { className: "fas fa-edit" }), /* @__PURE__ */ React.createElement("span", null, "重命名")), /* @__PURE__ */ React.createElement("div", { className: `context-menu-item${isParent ? " disabled" : ""}`, onClick: onDelete }, /* @__PURE__ */ React.createElement("i", { className: "fas fa-trash-alt" }), /* @__PURE__ */ React.createElement("span", null, "删除")), /* @__PURE__ */ React.createElement("div", { className: "context-menu-divider" }), /* @__PURE__ */ React.createElement("div", { className: "context-menu-item", onClick: onProperty }, /* @__PURE__ */ React.createElement("i", { className: "fas fa-info-circle" }), /* @__PURE__ */ React.createElement("span", null, "属性")));
 }
 const TEXT_PREVIEW_EXTS = ["txt", "md", "markdown", "json", "js", "jsx", "ts", "tsx", "py", "html", "htm", "css", "xml", "yml", "yaml", "log", "csv", "ini", "conf", "sh", "bat", "ps1", "env", "gitignore"];
 function isTextPreview(name) {
@@ -478,6 +478,40 @@ function NewFolderDialog({ open, onClose, onCreate }) {
     }
   )), /* @__PURE__ */ React.createElement("div", { className: "modal-footer" }, /* @__PURE__ */ React.createElement("button", { className: "modal-btn modal-btn-cancel", onClick: onClose }, "取消"), /* @__PURE__ */ React.createElement("button", { className: "modal-btn modal-btn-download", onClick: submit }, "创建"))));
 }
+function AnalyzeDialog({ item, onClose, onStart }) {
+  const [requirement, setRequirement] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  if (!item) return null;
+  const submit = async () => {
+    const text = requirement.trim();
+    if (!text || busy) return;
+    setBusy(true);
+    setError("");
+    try {
+      await onStart(text);
+      onClose();
+    } catch (e) {
+      setError(e.message || "启动失败");
+      setBusy(false);
+    }
+  };
+  return /* @__PURE__ */ React.createElement("div", { className: "modal-overlay active", onClick: busy ? void 0 : onClose }, /* @__PURE__ */ React.createElement("div", { className: "modal", onClick: (e) => e.stopPropagation() }, /* @__PURE__ */ React.createElement("div", { className: "modal-header" }, /* @__PURE__ */ React.createElement("div", { className: "modal-title" }, "一键AI分析"), /* @__PURE__ */ React.createElement("button", { className: "modal-close", onClick: onClose, disabled: busy }, "×")), /* @__PURE__ */ React.createElement("div", { className: "modal-body" }, /* @__PURE__ */ React.createElement("div", { className: "analyze-target", title: item.path || item.name }, /* @__PURE__ */ React.createElement("i", { className: "fas fa-robot" }), /* @__PURE__ */ React.createElement("span", null, item.name)), /* @__PURE__ */ React.createElement(
+    "textarea",
+    {
+      className: "ai-form-input analyze-input",
+      placeholder: "输入你的需求，例如：分析这个项目的技术架构和代码质量",
+      value: requirement,
+      autoFocus: true,
+      rows: 5,
+      onChange: (e) => setRequirement(e.target.value),
+      onKeyDown: (e) => {
+        if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) submit();
+        if (e.key === "Escape") onClose();
+      }
+    }
+  ), error && /* @__PURE__ */ React.createElement("div", { className: "analyze-error" }, error)), /* @__PURE__ */ React.createElement("div", { className: "modal-footer" }, /* @__PURE__ */ React.createElement("button", { className: "modal-btn modal-btn-cancel", onClick: onClose, disabled: busy }, "取消"), /* @__PURE__ */ React.createElement("button", { className: "modal-btn modal-btn-download", onClick: submit, disabled: busy || !requirement.trim() }, busy ? "启动中..." : "开始分析"))));
+}
 function loadViewMode() {
   try {
     return localStorage.getItem("fileBrowserViewMode") || "list";
@@ -510,6 +544,7 @@ function App() {
   const [confirmTarget, setConfirmTarget] = useState(null);
   const [propertyItem, setPropertyItem] = useState(null);
   const [newFolderOpen, setNewFolderOpen] = useState(false);
+  const [analyzeItem, setAnalyzeItem] = useState(null);
   const [rename, setRename] = useState(null);
   const [highlightPath, setHighlightPath] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -649,6 +684,19 @@ function App() {
     } catch (e) {
       showToast("打开失败: " + e.message, "error");
     }
+  };
+  const startAnalysis = async (requirement) => {
+    const item = analyzeItem;
+    if (!item || remoteMode) return;
+    const path = getFullPath(item.path || item.name);
+    const res = await fetch(buildApiUrl("analyze", {}), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ path, requirement })
+    });
+    const result = await res.json().catch(() => ({ success: false, error: "响应解析失败" }));
+    if (!result.success) throw new Error(result.error || "分析启动失败");
+    showToast("分析已启动，请在 dsh 对话框中查看", "success");
   };
   const ctxCopy = async () => {
     const item = ctxMenu && ctxMenu.item;
@@ -877,6 +925,11 @@ function App() {
       menuRef,
       onOpen: ctxOpen,
       onOpenLocation: ctxOpenLocation,
+      onAnalyze: () => {
+        const it = ctxMenu && ctxMenu.item;
+        setCtxMenu(null);
+        if (it) setAnalyzeItem(it);
+      },
       onCopy: ctxCopy,
       onRename: () => {
         const it = ctxMenu && ctxMenu.item;
@@ -886,6 +939,6 @@ function App() {
       onDelete: ctxDelete,
       onProperty: ctxProperty
     }
-  ), !remoteMode && /* @__PURE__ */ React.createElement("button", { className: "open-local-float", onClick: openLocalManager, title: "在本地文件管理器中打开当前目录" }, /* @__PURE__ */ React.createElement("i", { className: "fas fa-folder-open", "aria-hidden": "true" }), /* @__PURE__ */ React.createElement("span", null, "本地打开")), /* @__PURE__ */ React.createElement(PreviewOverlay, { preview, onClose: () => setPreview(null) }), /* @__PURE__ */ React.createElement(ConfirmDialog, { item: confirmTarget, onCancel: () => setConfirmTarget(null), onConfirm: confirmDelete }), /* @__PURE__ */ React.createElement(PropertyDialog, { item: propertyItem, onClose: () => setPropertyItem(null) }), /* @__PURE__ */ React.createElement(NewFolderDialog, { open: newFolderOpen, onClose: () => setNewFolderOpen(false), onCreate: handleCreateFolder }));
+  ), !remoteMode && /* @__PURE__ */ React.createElement("button", { className: "open-local-float", onClick: openLocalManager, title: "在本地文件管理器中打开当前目录" }, /* @__PURE__ */ React.createElement("i", { className: "fas fa-folder-open", "aria-hidden": "true" }), /* @__PURE__ */ React.createElement("span", null, "本地打开")), /* @__PURE__ */ React.createElement(PreviewOverlay, { preview, onClose: () => setPreview(null) }), /* @__PURE__ */ React.createElement(ConfirmDialog, { item: confirmTarget, onCancel: () => setConfirmTarget(null), onConfirm: confirmDelete }), /* @__PURE__ */ React.createElement(PropertyDialog, { item: propertyItem, onClose: () => setPropertyItem(null) }), /* @__PURE__ */ React.createElement(NewFolderDialog, { open: newFolderOpen, onClose: () => setNewFolderOpen(false), onCreate: handleCreateFolder }), /* @__PURE__ */ React.createElement(AnalyzeDialog, { item: analyzeItem, onClose: () => setAnalyzeItem(null), onStart: startAnalysis }));
 }
 ReactDOM.createRoot(document.getElementById("root")).render(/* @__PURE__ */ React.createElement(App, null));

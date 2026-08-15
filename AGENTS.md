@@ -50,6 +50,7 @@ pnpm run release -- --dry-run # 预览发版
 - **禁止修改 DSH 源码**：挂载只走 `cordis.patch.yml` + profile；官方 `@deepseek-ai/*` 一律 `peerDependencies`（不含 workspace/本地路径依赖），类型解析只来自 npm 安装的 SDK。
 - **函数插件形态**：`name` / `inject` / `Config` / `apply` 具名导出，**无默认导出**（否则 Loader 丢弃 inject）；一切注册走 `ctx.effect()` / `ctx.on()`，disposer 由注册返回。
 - **handler.ts 是纯函数核心**：HTTP 层（index.ts 路由）只是薄封装；所有端点、路径安全、响应信封都在核心内可单测。**路径安全与安全响应头（nosniff / X-Frame-Options: DENY / Referrer-Policy: no-referrer）是不可破坏的契约**。
+- **analyze 端点是 ctx 感知例外**：`一键AI分析`（`POST .../analyze`）需要在 index.ts 路由层直接处理（依赖可选的 `workspaceRegistry` / `agents` 服务，经 `ctx.get` 读取，缺省时返回 500 信封）；其编排逻辑 `runAnalysis` 独立导出可单测，不走 handler.ts 纯核心。
 - **前端资产纪律**：`app.jsx` 是唯一源码，`app.js` 必须由 `pnpm run build:frontend` 重新生成并随包提交；React/ReactDOM 用 `assets/vendor/` 本地副本，禁止引入 CDN 或运行时 Babel。改 `index.html` 引用的 `app.js?v=N` 时递增 N（静态资源已带 `Cache-Control: no-cache`，但仍保持版本号递增的缓存爆破约定）。
 - **前端标记纪律**：组合测试断言 `app.jsx` 与 `app.js` 中同时存在的关键标记（如 `open-local-float`、`isTextPreview`、`自定义根`）——改前端文案/结构时保持标记一致，否则测试变红。
 - **双语文档纪律**：README 中英配对（`README.md` + `README.zh.md` + `README.i18n.yaml`）；改任一侧必须同步另一侧并刷新哈希（`git hash-object README.md README.zh.md` 写入 i18n 文件）。

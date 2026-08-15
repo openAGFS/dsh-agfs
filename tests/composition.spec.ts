@@ -313,6 +313,34 @@ describe('real Loader composition', () => {
     expect((JSON.parse(listed.body) as { success: boolean }).success).toBe(true)
   })
 
+  it('validates analyze requests and fails loud without the workspace service', { timeout: 60_000 }, async () => {
+    const { ctx } = await loadComposition('')
+    const browse = join(root ?? '', 'browse')
+    const noReq = await http(ctx, 'POST', '/dsh-agfs/api/file_browser/analyze', { path: browse })
+    expect(noReq.status).toBe(400)
+    expect(JSON.parse(noReq.body)).toEqual({ success: false, error: '缺少需求描述' })
+    const noPath = await http(ctx, 'POST', '/dsh-agfs/api/file_browser/analyze', { requirement: '分析' })
+    expect(noPath.status).toBe(400)
+    expect(JSON.parse(noPath.body)).toEqual({ success: false, error: '缺少path参数' })
+    const missing = await http(ctx, 'POST', '/dsh-agfs/api/file_browser/analyze', { path: join(browse, 'nope'), requirement: '分析' })
+    expect(missing.status).toBe(404)
+    const getOnly = await http(ctx, 'GET', '/dsh-agfs/api/file_browser/analyze?path=x')
+    expect(getOnly.status).toBe(405)
+    // The bare composition mounts no workspace/agent services, so a valid
+    // request fails loud instead of silently doing nothing.
+    const started = await http(ctx, 'POST', '/dsh-agfs/api/file_browser/analyze', { path: browse, requirement: '分析这个目录' })
+    expect(started.status).toBe(500)
+    expect((JSON.parse(started.body) as { error: string }).error).toContain('工作区服务不可用')
+  })
+
+  it('rejects analyze in remote mode', { timeout: 60_000 }, async () => {
+    const { ctx } = await loadComposition('    remoteMode: true')
+    const browse = join(root ?? '', 'browse')
+    const started = await http(ctx, 'POST', '/dsh-agfs/api/file_browser/analyze', { path: browse, requirement: 'x' })
+    expect(started.status).toBe(403)
+    expect(JSON.parse(started.body)).toEqual({ success: false, error: '远程模式下不支持AI分析' })
+  })
+
   it('answers every read-only endpoint over HTTP with the contract envelope', { timeout: 60_000 }, async () => {
     const { ctx } = await loadComposition('')
     const browse = join(root ?? '', 'browse')
@@ -491,6 +519,10 @@ describe('real Loader composition', () => {
     expect(jsx.body).toContain('size-whole')
     expect(jsx.body).toContain('视图大小')
     expect(jsx.body).toContain('整个视图')
+    // The one-click AI analysis entry: context-menu item and dialog markers.
+    expect(jsx.body).toContain('一键AI分析')
+    expect(jsx.body).toContain('开始分析')
+    expect(jsx.body).toContain('analyze-input')
     // The precompiled bundle the page actually loads carries the same markers.
     const app = await http(ctx, 'GET', '/dsh-agfs/app.js')
     expect(app.status).toBe(200)
@@ -504,6 +536,9 @@ describe('real Loader composition', () => {
     expect(app.body).toContain('size-whole')
     expect(app.body).toContain('视图大小')
     expect(app.body).toContain('整个视图')
+    expect(app.body).toContain('一键AI分析')
+    expect(app.body).toContain('开始分析')
+    expect(app.body).toContain('analyze-input')
     const react = await http(ctx, 'GET', '/dsh-agfs/vendor/react.production.min.js')
     expect(react.status).toBe(200)
     const reactDom = await http(ctx, 'GET', '/dsh-agfs/vendor/react-dom.production.min.js')

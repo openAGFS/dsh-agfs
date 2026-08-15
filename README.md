@@ -24,6 +24,7 @@ English | [中文](README.zh.md)
 - **侧边栏** — project directory, quick access (Desktop/Downloads/Documents…), custom roots, and drives.
 - **搜索** — toolbar search with optional recursive mode (200-hit cap).
 - **本地打开** — in local mode, a floating button in the bottom-right opens the system file manager at the current directory.
+- **一键AI分析** — right-click a file/folder → enter a requirement → dsh creates a workspace for that directory and wakes a fresh session whose agent analyzes it (local mode only).
 - **Full file browser** — list/search, text preview (markdown, code, logs), image preview, and create/rename/copy/delete folders.
 - **`/dsh-agfs` command** — opens the file browser in the system default browser and **automatically navigates to the current session's workspace directory** (session cwd); switch workspaces and it follows.
 - **`browse_files` model tool** — the model can list or recursively search the browser root directly.
@@ -109,7 +110,7 @@ Config lives in the profile's user patch layer (`$DSH_HOME/profiles/<name>/cordi
 
 ## API
 
-The frontend calls the endpoint set under `${basePath}/api/file_browser/`: `list`, `read`, `download`, `open`, `open_location`, `search`, `info`, `workspace`, `sidebar`, `thumbnail`, `mode`, `debug`, `delete`, `create_folder`, `rename`, `copy`. Paths are confined under the browsable root. `search` accepts `recursive=1` (also `true`/`yes`) with a 200-hit cap and a directory-depth cap of 5. Every response carries the security headers; static assets answer GET/HEAD only.
+The frontend calls the endpoint set under `${basePath}/api/file_browser/`: `list`, `read`, `download`, `open`, `open_location`, `search`, `info`, `workspace`, `sidebar`, `thumbnail`, `mode`, `debug`, `delete`, `create_folder`, `rename`, `copy`, and `analyze` (one-click AI analysis, local mode only). Paths are confined under the browsable root. `search` accepts `recursive=1` (also `true`/`yes`) with a 200-hit cap and a directory-depth cap of 5. Every response carries the security headers; static assets answer GET/HEAD only.
 
 ## Model tool
 

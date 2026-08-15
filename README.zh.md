@@ -24,6 +24,7 @@
 - **侧边栏**——项目目录、快速访问（桌面/下载/文档…）、自定义根与磁盘驱动器。
 - **搜索**——顶栏搜索，支持递归模式（命中上限 200）。
 - **本地打开**——本机模式下右下角悬浮按钮，一键用系统文件管理器打开当前目录。
+- **一键AI分析**——右键文件/文件夹 → 输入需求 → dsh 为该目录创建工作区并唤醒新会话的智能体进行分析（仅本机模式）。
 - **完整文件浏览器**——列表/搜索、文本预览（markdown、代码、日志）、图片预览，支持新建/重命名/复制/删除文件夹。
 - **`/dsh-agfs` 命令**——在系统默认浏览器中打开文件浏览器，并**自动定位到当前会话的工作区目录**（session cwd）；切换工作区后再次执行会自动跟随。
 - **`browse_files` 模型工具**——模型可直接列出或递归搜索浏览根。
@@ -109,7 +110,7 @@ dsh plugin --profile web add @open-agfs/dsh-agfs@latest
 
 ## API
 
-前端调用 `${basePath}/api/file_browser/` 下的端点：`list`、`read`、`download`、`open`、`open_location`、`search`、`info`、`workspace`、`sidebar`、`thumbnail`、`mode`、`debug`、`delete`、`create_folder`、`rename`、`copy`。路径被限定在浏览根内；`search` 支持 `recursive=1`（也接受 `true`/`yes`）递归遍历，命中上限 200、目录深度上限 5。所有响应带安全响应头；静态资源只响应 GET/HEAD。
+前端调用 `${basePath}/api/file_browser/` 下的端点：`list`、`read`、`download`、`open`、`open_location`、`search`、`info`、`workspace`、`sidebar`、`thumbnail`、`mode`、`debug`、`delete`、`create_folder`、`rename`、`copy`，以及 `analyze`（一键AI分析，仅本机模式）。路径被限定在浏览根内；`search` 支持 `recursive=1`（也接受 `true`/`yes`）递归遍历，命中上限 200、目录深度上限 5。所有响应带安全响应头；静态资源只响应 GET/HEAD。
 
 ## 模型工具
 

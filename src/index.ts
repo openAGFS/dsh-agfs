@@ -9,12 +9,18 @@
  */
 
 import { createReadStream, existsSync, statSync } from 'node:fs'
+import { randomUUID } from 'node:crypto'
+import { dirname } from 'node:path'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import type { Context } from '@deepseek-ai/cordis'
 import z from '@deepseek-ai/schemastery'
 import type { CommandInvocation, CommandResult } from '@deepseek-ai/dsh-commands'
 import type {} from '@deepseek-ai/dsh-host-webserver'
-import { dispatchApi, getClientIp, readJsonBody, resolveAsset, writeOutcome } from './handler.ts'
+import type {} from '@deepseek-ai/dsh-agent'
+import type {} from '@deepseek-ai/dsh-workspace'
+import { SessionId } from '@deepseek-ai/dsh-session'
+import { createUserMessage } from '@deepseek-ai/dsh-llm'
+import { dispatchApi, getClientIp, getSafePath, readJsonBody, resolveAsset, writeOutcome } from './handler.ts'
 import { openInBrowser } from './open.ts'
 import { registerFileBrowseTool } from './tool.ts'
 import type { AgfsConfig, Body, Query } from './types.ts'
@@ -90,6 +96,43 @@ function workspaceTarget(invocation: CommandInvocation): string | undefined {
   return undefined
 }
 
+/** One started analysis: the minted session and the workspace directory it lives in. */
+export interface AnalysisResult {
+  readonly sessionId: string
+  readonly workspacePath: string
+}
+
+/**
+ * Start one AI analysis: create (or reuse) the workspace for `targetPath`,
+ * mint a fresh session with its cwd pinned to that directory, and wake its
+ * agent with the user's requirement as an ordinary follow-up turn. The
+ * workspace/agent services are optional (ctx.get) so the rest of the plugin
+ * keeps working in compositions that do not mount them; absence fails the
+ * endpoint with a clear error instead.
+ * @param ctx - context carrying the optional workspace and agent registries.
+ * @param targetPath - the directory the analysis runs in (a file resolves to its parent).
+ * @param requirement - the user's analysis request, sent verbatim as one user message.
+ * @returns the minted session id and the workspace directory.
+ */
+export async function runAnalysis(
+  ctx: Context,
+  targetPath: string,
+  requirement: string,
+): Promise<AnalysisResult> {
+  const workspaceRegistry = ctx.get('workspaceRegistry')
+  if (workspaceRegistry === undefined) throw new Error('工作区服务不可用')
+  await workspaceRegistry.create(targetPath)
+  const agents = ctx.get('agents')
+  if (agents === undefined) throw new Error('智能体服务不可用')
+  const sessionId = SessionId(`analysis-${randomUUID()}`)
+  const handle = await agents.create({ sessionId, meta: { cwd: targetPath } })
+  handle.agent.followup(createUserMessage({
+    content: [{ type: 'text', text: requirement }],
+    source: { kind: 'user' },
+  }))
+  return { sessionId: String(sessionId), workspacePath: targetPath }
+}
+
 /**
  * Register the `/dsh-agfs` command and the `basePath` prefix route.
  * @param ctx - context carrying the command registry and the webserver.
@@ -126,6 +169,59 @@ export function apply(ctx: Context, config: Config): void {
     }
   }
 
+  /* ---- 一键AI分析:建工作区 + 新会话 + 唤醒智能体(仅本机模式) ---- */
+  const handleAnalyze = async (
+    req: IncomingMessage,
+    res: ServerResponse,
+    body: Body,
+  ): Promise<void> => {
+    if (req.method !== 'POST') {
+      writeOutcome(res, { kind: 'error', status: 405, error: '方法不允许' })
+      return
+    }
+    if (resolved.remoteMode) {
+      writeOutcome(res, { kind: 'error', status: 403, error: '远程模式下不支持AI分析' })
+      return
+    }
+    const rawPath = typeof body.path === 'string' ? body.path : ''
+    const requirement = typeof body.requirement === 'string' ? body.requirement.trim() : ''
+    if (rawPath === '') {
+      writeOutcome(res, { kind: 'error', status: 400, error: '缺少path参数' })
+      return
+    }
+    if (requirement === '') {
+      writeOutcome(res, { kind: 'error', status: 400, error: '缺少需求描述' })
+      return
+    }
+    // Resolve the browsed item; a file analyzes in its parent directory.
+    const root = resolved.fileRoot.trim() !== '' ? resolved.fileRoot : process.cwd()
+    let target: string
+    try {
+      target = getSafePath(root, rawPath, resolved.strictRoot)
+    } catch (error: unknown) {
+      writeOutcome(res, { kind: 'error', status: 400, error: error instanceof Error ? error.message : String(error) })
+      return
+    }
+    if (!existsSync(target)) {
+      writeOutcome(res, { kind: 'error', status: 404, error: '路径不存在' })
+      return
+    }
+    if (!statSync(target).isDirectory()) target = dirname(target)
+    try {
+      const result = await runAnalysis(ctx, target, requirement)
+      if (resolved.debug) console.error(`[dsh-agfs:debug] POST analyze path=${target} session=${result.sessionId}`)
+      writeOutcome(res, {
+        kind: 'json',
+        status: 200,
+        data: { sessionId: result.sessionId, workspacePath: result.workspacePath },
+        message: '分析已启动',
+      })
+    } catch (error: unknown) {
+      if (resolved.debug) console.error(`[dsh-agfs:debug] POST analyze failed: ${error instanceof Error ? error.message : String(error)}`)
+      writeOutcome(res, { kind: 'error', status: 500, error: `分析启动失败: ${error instanceof Error ? error.message : String(error)}` })
+    }
+  }
+
   const routeHandler = async (req: IncomingMessage, res: ServerResponse): Promise<void> => {
     let pathname: string
     let query: Query
@@ -158,6 +254,10 @@ export function apply(ctx: Context, config: Config): void {
       const socketAddress = req.socket.remoteAddress ?? ''
       /* v8 ignore next -- node:http always sets method on server requests */
       const method = req.method ?? 'GET'
+      if (endpoint === 'analyze') {
+        await handleAnalyze(req, res, body)
+        return
+      }
       const outcome = await dispatchApi(method, endpoint, query, body, resolved, getClientIp(req.headers, socketAddress), socketAddress)
       if (resolved.debug) {
         console.error(`[dsh-agfs:debug] ${method} ${endpoint} status=${outcome.kind === 'stream' ? 200 : outcome.status}`)
