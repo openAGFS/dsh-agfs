@@ -7,18 +7,11 @@
     <link rel="icon" href="data:,">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="webbrowser.css">
-    <!-- 响应式与全屏布局(在 webbrowser.css 之后加载覆盖,原 CSS 不做改动) -->
+    <!-- 尺寸模式：.browser 基础样式即「视图大小」(居中窗口)；铺满/全屏由
+         .size-whole 类控制(见 webbrowser.css)，以下保留响应式覆盖。 -->
     <style>
         html, body { height: 100%; overflow: hidden; }
         body { padding: 0 !important; }
-        .browser {
-            width: 100vw;
-            height: 100vh;
-            max-width: 100vw;
-            max-height: 100vh;
-            border-radius: 0;
-            box-shadow: none;
-        }
         .sidebar-backdrop { display: none; }
         .sidebar-toggle-btn { display: none !important; }
         @media (max-width: 1100px) {

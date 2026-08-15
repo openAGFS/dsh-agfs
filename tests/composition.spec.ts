@@ -484,6 +484,13 @@ describe('real Loader composition', () => {
     // current directory; its marker lives in the served source and bundle.
     expect(jsx.body).toContain('open-local-float')
     expect(jsx.body).toContain('本地打开')
+    // The three display sizes (view / whole / fullscreen) cycle through a
+    // toolbar button; their markers live in the served source and bundle.
+    expect(jsx.body).toContain('sizeMode')
+    expect(jsx.body).toContain('size-view')
+    expect(jsx.body).toContain('size-whole')
+    expect(jsx.body).toContain('视图大小')
+    expect(jsx.body).toContain('整个视图')
     // The precompiled bundle the page actually loads carries the same markers.
     const app = await http(ctx, 'GET', '/dsh-agfs/app.js')
     expect(app.status).toBe(200)
@@ -492,6 +499,11 @@ describe('real Loader composition', () => {
     expect(app.body).toContain('__DSH_AGFS__')
     expect(app.body).toContain('open-local-float')
     expect(app.body).toContain('本地打开')
+    expect(app.body).toContain('sizeMode')
+    expect(app.body).toContain('size-view')
+    expect(app.body).toContain('size-whole')
+    expect(app.body).toContain('视图大小')
+    expect(app.body).toContain('整个视图')
     const react = await http(ctx, 'GET', '/dsh-agfs/vendor/react.production.min.js')
     expect(react.status).toBe(200)
     const reactDom = await http(ctx, 'GET', '/dsh-agfs/vendor/react-dom.production.min.js')

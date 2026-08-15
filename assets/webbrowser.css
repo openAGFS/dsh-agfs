@@ -30,6 +30,25 @@
             transition: all 0.2s ease;
         }
 
+        /* 三档尺寸：默认(.browser 无尺寸类)即「视图大小」居中窗口；
+           .size-view 显式声明小窗尺寸；.size-whole 铺满整个浏览器视口 */
+        .browser.size-view {
+            width: 1300px;
+            max-width: 94vw;
+            height: 800px;
+            max-height: 90vh;
+            border-radius: 36px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.6) inset;
+        }
+        .browser.size-whole {
+            width: 100vw;
+            height: 100vh;
+            max-width: 100vw;
+            max-height: 100vh;
+            border-radius: 0;
+            box-shadow: none;
+        }
+
         .sidebar {
             width: 260px;
             background: rgba(255, 255, 255, 0.5);

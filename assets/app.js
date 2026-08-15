@@ -167,7 +167,7 @@ function Sidebar({ remoteMode, curPath, project, quick, drives, roots, onHome, o
   const isActive = (target) => pathIsInside(curPath, target);
   return /* @__PURE__ */ React.createElement("div", { className: "sidebar" }, /* @__PURE__ */ React.createElement("div", { className: "sidebar-header" }, /* @__PURE__ */ React.createElement("div", { className: "logo-icon" }, /* @__PURE__ */ React.createElement("svg", null, /* @__PURE__ */ React.createElement("use", { href: "#icon-folder-open" }))), /* @__PURE__ */ React.createElement("span", { className: "logo-text" }, "文件浏览器")), /* @__PURE__ */ React.createElement("div", { style: { flex: 1, minHeight: 0, overflowY: "auto" } }, /* @__PURE__ */ React.createElement("div", { className: "nav-section" }, /* @__PURE__ */ React.createElement("div", { className: "nav-label" }, "快速访问"), project && /* @__PURE__ */ React.createElement("button", { className: `nav-item${isActive(project) ? " active" : ""}`, title: project, onClick: () => onNavigate(project) }, /* @__PURE__ */ React.createElement("svg", null, /* @__PURE__ */ React.createElement("use", { href: "#icon-project" })), " 项目目录"), quick.map((q) => /* @__PURE__ */ React.createElement("button", { key: q.path, className: `nav-item${isActive(q.path) ? " active" : ""}`, title: q.path, onClick: () => onNavigate(q.path) }, /* @__PURE__ */ React.createElement("svg", null, /* @__PURE__ */ React.createElement("use", { href: "#" + iconForQuick(q.name) })), q.name))), roots && roots.length > 0 && /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("div", { className: "ai-divider", style: { margin: "6px 8px" } }), /* @__PURE__ */ React.createElement("div", { className: "nav-section" }, /* @__PURE__ */ React.createElement("div", { className: "nav-label" }, "自定义根"), roots.map((r) => /* @__PURE__ */ React.createElement("button", { key: r.path, className: `nav-item${isActive(r.path) ? " active" : ""}`, title: r.path, onClick: () => onNavigate(r.path) }, /* @__PURE__ */ React.createElement("svg", null, /* @__PURE__ */ React.createElement("use", { href: "#icon-folder" })), /* @__PURE__ */ React.createElement("span", null, r.name))))), /* @__PURE__ */ React.createElement("div", { className: "ai-divider", style: { margin: "6px 8px" } }), /* @__PURE__ */ React.createElement("div", { className: "nav-section" }, /* @__PURE__ */ React.createElement("div", { className: "nav-label" }, "磁盘驱动器"), /* @__PURE__ */ React.createElement("button", { className: `nav-item${isActive("") ? " active" : ""}`, onClick: onHome }, /* @__PURE__ */ React.createElement("svg", null, /* @__PURE__ */ React.createElement("use", { href: "#icon-home" })), " 此电脑"), drives.map((d) => /* @__PURE__ */ React.createElement("button", { key: d.path, className: `nav-item${isActive(d.path) ? " active" : ""}`, title: d.path, onClick: () => onNavigate(d.path) }, /* @__PURE__ */ React.createElement("svg", null, /* @__PURE__ */ React.createElement("use", { href: "#icon-drive" })), /* @__PURE__ */ React.createElement("span", null, d.name))))), /* @__PURE__ */ React.createElement("div", { className: `mode-indicator${remoteMode ? " remote" : ""}` }, /* @__PURE__ */ React.createElement("div", { className: "mode-dot" }), /* @__PURE__ */ React.createElement("span", { className: "mode-text" }, remoteMode ? "远程模式" : "本机模式"), /* @__PURE__ */ React.createElement("span", { className: "mode-badge" }, remoteMode ? "远程" : "本地")));
 }
-function Toolbar({ crumbs, onNavigate, searchText, onSearch, viewMode, onViewMode, onNewFolder, onToggleSidebar, isFullscreen, onToggleFullscreen }) {
+function Toolbar({ crumbs, onNavigate, searchText, onSearch, viewMode, onViewMode, onNewFolder, onToggleSidebar, sizeMode, onCycleSize }) {
   const curStyle = { background: "white", color: "#0b1e33", fontWeight: 600 };
   const separator = (crumbs || "").includes("\\") ? "\\" : "/";
   let breadcrumbNodes;
@@ -201,7 +201,15 @@ function Toolbar({ crumbs, onNavigate, searchText, onSearch, viewMode, onViewMod
       value: searchText,
       onChange: (e) => onSearch(e.target.value)
     }
-  )), /* @__PURE__ */ React.createElement("div", { className: "view-toggle" }, /* @__PURE__ */ React.createElement("button", { className: `view-btn${viewMode === "list" ? " active" : ""}`, title: "列表视图", onClick: () => onViewMode("list") }, /* @__PURE__ */ React.createElement("svg", { width: "16", height: "16", fill: "currentColor", viewBox: "0 0 16 16" }, /* @__PURE__ */ React.createElement("path", { d: "M0 2h16v2H0V2zm0 4h16v2H0V6zm0 4h16v2H0v-2zm0 4h16v2H0v-2z" }))), /* @__PURE__ */ React.createElement("button", { className: `view-btn${viewMode === "grid" ? " active" : ""}`, title: "卡片视图", onClick: () => onViewMode("grid") }, /* @__PURE__ */ React.createElement("svg", { width: "16", height: "16", fill: "currentColor", viewBox: "0 0 16 16" }, /* @__PURE__ */ React.createElement("path", { d: "M1 1h6v6H1V1zm8 0h6v6H9V1zM1 9h6v6H1V9zm8 0h6v6H9V9z" })))), /* @__PURE__ */ React.createElement("button", { className: "view-btn", title: "新建文件夹", onClick: onNewFolder }, /* @__PURE__ */ React.createElement("i", { className: "fa-solid fa-folder-plus" })), /* @__PURE__ */ React.createElement("button", { className: "view-btn", title: isFullscreen ? "退出全屏" : "全屏", onClick: onToggleFullscreen }, /* @__PURE__ */ React.createElement("i", { className: `fa-solid ${isFullscreen ? "fa-compress" : "fa-expand"}` }))));
+  )), /* @__PURE__ */ React.createElement("div", { className: "view-toggle" }, /* @__PURE__ */ React.createElement("button", { className: `view-btn${viewMode === "list" ? " active" : ""}`, title: "列表视图", onClick: () => onViewMode("list") }, /* @__PURE__ */ React.createElement("svg", { width: "16", height: "16", fill: "currentColor", viewBox: "0 0 16 16" }, /* @__PURE__ */ React.createElement("path", { d: "M0 2h16v2H0V2zm0 4h16v2H0V6zm0 4h16v2H0v-2zm0 4h16v2H0v-2z" }))), /* @__PURE__ */ React.createElement("button", { className: `view-btn${viewMode === "grid" ? " active" : ""}`, title: "卡片视图", onClick: () => onViewMode("grid") }, /* @__PURE__ */ React.createElement("svg", { width: "16", height: "16", fill: "currentColor", viewBox: "0 0 16 16" }, /* @__PURE__ */ React.createElement("path", { d: "M1 1h6v6H1V1zm8 0h6v6H9V1zM1 9h6v6H1V9zm8 0h6v6H9V9z" })))), /* @__PURE__ */ React.createElement("button", { className: "view-btn", title: "新建文件夹", onClick: onNewFolder }, /* @__PURE__ */ React.createElement("i", { className: "fa-solid fa-folder-plus" })), /* @__PURE__ */ React.createElement(
+    "button",
+    {
+      className: "view-btn size-mode-btn",
+      title: sizeMode === "view" ? "视图大小(点击:整个视图)" : sizeMode === "whole" ? "整个视图(点击:全屏)" : "全屏(点击:视图大小)",
+      onClick: onCycleSize
+    },
+    /* @__PURE__ */ React.createElement("i", { className: `fa-solid ${sizeMode === "view" ? "fa-window-restore" : sizeMode === "whole" ? "fa-expand-arrows-alt" : "fa-compress"}` })
+  )));
 }
 const SORT_DEFS = [
   { field: "name", label: "名称", col: "col-name" },
@@ -504,7 +512,7 @@ function App() {
   const [rename, setRename] = useState(null);
   const [highlightPath, setHighlightPath] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [sizeMode, setSizeMode] = useState("whole");
   const searchTimer = useRef(null);
   const menuRef = useRef(null);
   const renameRef = useRef(null);
@@ -743,20 +751,30 @@ function App() {
       showToast("创建失败: " + e.message, "error");
     }
   };
-  const toggleFullscreen = () => {
+  const toggleSizeMode = () => {
     try {
-      if (document.fullscreenElement) {
-        document.exitFullscreen().catch(() => {
+      if (sizeMode === "view") {
+        setSizeMode("whole");
+      } else if (sizeMode === "whole") {
+        setSizeMode("fullscreen");
+        document.documentElement.requestFullscreen().catch(() => {
         });
       } else {
-        document.documentElement.requestFullscreen().catch(() => {
+        setSizeMode("view");
+        if (document.fullscreenElement) document.exitFullscreen().catch(() => {
         });
       }
     } catch (e) {
     }
   };
   useEffect(() => {
-    const onFs = () => setIsFullscreen(!!document.fullscreenElement);
+    const onFs = () => {
+      if (document.fullscreenElement) {
+        setSizeMode("fullscreen");
+      } else {
+        setSizeMode((prev) => prev === "fullscreen" ? "whole" : prev);
+      }
+    };
     document.addEventListener("fullscreenchange", onFs);
     return () => document.removeEventListener("fullscreenchange", onFs);
   }, []);
@@ -815,7 +833,7 @@ function App() {
     })();
     return () => clearTimeout(searchTimer.current);
   }, []);
-  return /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("div", { className: `browser${sidebarOpen ? " sidebar-open" : ""}` }, /* @__PURE__ */ React.createElement(Sidebar, { remoteMode, curPath, project: sidebarData.project, quick: sidebarData.quick, drives: sidebarData.drives, roots: sidebarData.roots, onHome: () => loadDirectory(""), onNavigate: loadDirectory }), /* @__PURE__ */ React.createElement("div", { className: "sidebar-backdrop", onClick: () => setSidebarOpen(false) }), /* @__PURE__ */ React.createElement("div", { className: "main" }, /* @__PURE__ */ React.createElement(
+  return /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("div", { className: `browser${sidebarOpen ? " sidebar-open" : ""}${sizeMode === "view" ? " size-view" : " size-whole"}` }, /* @__PURE__ */ React.createElement(Sidebar, { remoteMode, curPath, project: sidebarData.project, quick: sidebarData.quick, drives: sidebarData.drives, roots: sidebarData.roots, onHome: () => loadDirectory(""), onNavigate: loadDirectory }), /* @__PURE__ */ React.createElement("div", { className: "sidebar-backdrop", onClick: () => setSidebarOpen(false) }), /* @__PURE__ */ React.createElement("div", { className: "main" }, /* @__PURE__ */ React.createElement(
     Toolbar,
     {
       crumbs: data ? data.current_path : "",
@@ -826,8 +844,8 @@ function App() {
       onViewMode: handleViewMode,
       onNewFolder: () => setNewFolderOpen(true),
       onToggleSidebar: () => setSidebarOpen((v) => !v),
-      isFullscreen,
-      onToggleFullscreen: toggleFullscreen
+      sizeMode,
+      onCycleSize: toggleSizeMode
     }
   ), /* @__PURE__ */ React.createElement(ListHeader, { sort, onSort: handleSort }), /* @__PURE__ */ React.createElement(
     FileList,

@@ -245,7 +245,7 @@ function Sidebar({ remoteMode, curPath, project, quick, drives, roots, onHome, o
 
 /* ============================ 工具栏 ============================ */
 
-function Toolbar({ crumbs, onNavigate, searchText, onSearch, viewMode, onViewMode, onNewFolder, onToggleSidebar, isFullscreen, onToggleFullscreen }) {
+function Toolbar({ crumbs, onNavigate, searchText, onSearch, viewMode, onViewMode, onNewFolder, onToggleSidebar, sizeMode, onCycleSize }) {
   const curStyle = { background: 'white', color: '#0b1e33', fontWeight: 600 };
   const separator = (crumbs || '').includes('\\') ? '\\' : '/';
 
@@ -304,8 +304,12 @@ function Toolbar({ crumbs, onNavigate, searchText, onSearch, viewMode, onViewMod
         <button className="view-btn" title="新建文件夹" onClick={onNewFolder}>
           <i className="fa-solid fa-folder-plus" />
         </button>
-        <button className="view-btn" title={isFullscreen ? '退出全屏' : '全屏'} onClick={onToggleFullscreen}>
-          <i className={`fa-solid ${isFullscreen ? 'fa-compress' : 'fa-expand'}`} />
+        <button
+          className="view-btn size-mode-btn"
+          title={sizeMode === 'view' ? '视图大小(点击:整个视图)' : sizeMode === 'whole' ? '整个视图(点击:全屏)' : '全屏(点击:视图大小)'}
+          onClick={onCycleSize}
+        >
+          <i className={`fa-solid ${sizeMode === 'view' ? 'fa-window-restore' : sizeMode === 'whole' ? 'fa-expand-arrows-alt' : 'fa-compress'}`} />
         </button>
       </div>
     </div>
@@ -731,7 +735,7 @@ function App() {
   const [rename, setRename] = useState(null);
   const [highlightPath, setHighlightPath] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(false); // 窄屏侧边栏抽屉
-  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [sizeMode, setSizeMode] = useState('whole'); // view(视图大小) | whole(整个视图) | fullscreen(全屏)
 
   const searchTimer = useRef(null);
   const menuRef = useRef(null);
@@ -1003,19 +1007,29 @@ function App() {
     }
   };
 
-  /* ---- 全屏切换(浏览器 Fullscreen API) ---- */
-  const toggleFullscreen = () => {
+  /* ---- 三档尺寸循环:视图大小(小窗) -> 整个视图(铺满) -> 全屏(Fullscreen API) ---- */
+  const toggleSizeMode = () => {
     try {
-      if (document.fullscreenElement) {
-        document.exitFullscreen().catch(() => {});
-      } else {
+      if (sizeMode === 'view') {
+        setSizeMode('whole');
+      } else if (sizeMode === 'whole') {
+        setSizeMode('fullscreen');
         document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        setSizeMode('view');
+        if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
       }
     } catch (e) { /* 忽略不支持的环境 */ }
   };
 
   useEffect(() => {
-    const onFs = () => setIsFullscreen(!!document.fullscreenElement);
+    const onFs = () => {
+      if (document.fullscreenElement) {
+        setSizeMode('fullscreen');
+      } else {
+        setSizeMode((prev) => (prev === 'fullscreen' ? 'whole' : prev));
+      }
+    };
     document.addEventListener('fullscreenchange', onFs);
     return () => document.removeEventListener('fullscreenchange', onFs);
   }, []);
@@ -1089,7 +1103,7 @@ function App() {
     <React.Fragment>
       {/* 主界面(浮层必须在 .browser 之外:.browser 带 backdrop-filter + overflow:hidden,
           会让 position:fixed 后代相对其盒子定位并裁剪,导致右键菜单位置偏移/被裁剪) */}
-      <div className={`browser${sidebarOpen ? ' sidebar-open' : ''}`}>
+      <div className={`browser${sidebarOpen ? ' sidebar-open' : ''}${sizeMode === 'view' ? ' size-view' : ' size-whole'}`}>
         <Sidebar remoteMode={remoteMode} curPath={curPath} project={sidebarData.project} quick={sidebarData.quick} drives={sidebarData.drives} roots={sidebarData.roots} onHome={() => loadDirectory('')} onNavigate={loadDirectory} />
         <div className="sidebar-backdrop" onClick={() => setSidebarOpen(false)} />
         <div className="main">
@@ -1102,8 +1116,8 @@ function App() {
             onViewMode={handleViewMode}
             onNewFolder={() => setNewFolderOpen(true)}
             onToggleSidebar={() => setSidebarOpen((v) => !v)}
-            isFullscreen={isFullscreen}
-            onToggleFullscreen={toggleFullscreen}
+            sizeMode={sizeMode}
+            onCycleSize={toggleSizeMode}
           />
           <ListHeader sort={sort} onSort={handleSort} />
           <FileList
