@@ -18,6 +18,7 @@ import type { CommandInvocation, CommandResult } from '@deepseek-ai/dsh-commands
 import type {} from '@deepseek-ai/dsh-host-webserver'
 import type {} from '@deepseek-ai/dsh-agent'
 import type {} from '@deepseek-ai/dsh-workspace'
+import type {} from '@deepseek-ai/dsh-agent-default-model'
 import { SessionId } from '@deepseek-ai/dsh-session'
 import { createUserMessage } from '@deepseek-ai/dsh-llm'
 import { dispatchApi, getClientIp, getSafePath, readJsonBody, resolveAsset, writeOutcome } from './handler.ts'
@@ -124,8 +125,18 @@ export async function runAnalysis(
   const workspace = await workspaceRegistry.create(targetPath)
   const agents = ctx.get('agents')
   if (agents === undefined) throw new Error('智能体服务不可用')
+  // An analysis agent must carry the same model a normal session would get:
+  // the system prompt fills {{model}} from AgentOptions, so an options-less
+  // agent fails its first prompt assembly. The default-model service is
+  // optional; without it the agent is created with no options, as before.
+  const defaultModel = ctx.get('agentDefaultModel')
+  const selection = defaultModel?.currentSelection()
   const sessionId = SessionId(`analysis-${randomUUID()}`)
-  const handle = await agents.create({ sessionId, meta: { cwd: targetPath } })
+  const handle = await agents.create({
+    sessionId,
+    meta: { cwd: targetPath },
+    ...(selection === undefined ? {} : { agentOptions: { provider: selection.provider, model: selection.model } }),
+  })
   // Group the session under the workspace: membership requires an explicit
   // attach (the GUI's normal session flow attaches on creation).
   await workspace.attachSession(sessionId)

@@ -49,4 +49,33 @@ describe('runAnalysis', () => {
     ctx.provide('workspaceRegistry', { create: async () => ({}) } as never)
     await expect(runAnalysis(ctx, 'C:\\proj', 'x')).rejects.toThrow('智能体服务不可用')
   })
+
+  it('passes the host default model as agent options so the persona can fill {{model}}', async () => {
+    const ctx = new Context()
+    ctx.provide('workspaceRegistry', { create: async () => ({ attachSession: async () => undefined }) } as never)
+    const followup = vi.fn()
+    const createAgent = vi.fn(async () => ({ agent: { followup }, dispose: async () => undefined }))
+    ctx.provide('agents', { create: createAgent } as never)
+    ctx.provide('agentDefaultModel', {
+      currentSelection: () => ({ provider: 'deepseek-official', model: 'deepseek-v4-flash' }),
+    } as never)
+
+    await runAnalysis(ctx, 'C:\\proj', 'analyze this directory')
+
+    expect(createAgent).toHaveBeenCalledWith(expect.objectContaining({
+      agentOptions: { provider: 'deepseek-official', model: 'deepseek-v4-flash' },
+    }))
+  })
+
+  it('creates the agent without options when no default-model service is mounted', async () => {
+    const ctx = new Context()
+    ctx.provide('workspaceRegistry', { create: async () => ({ attachSession: async () => undefined }) } as never)
+    const followup = vi.fn()
+    const createAgent = vi.fn(async () => ({ agent: { followup }, dispose: async () => undefined }))
+    ctx.provide('agents', { create: createAgent } as never)
+
+    await runAnalysis(ctx, 'C:\\proj', 'x')
+
+    expect(createAgent).toHaveBeenCalledWith(expect.not.objectContaining({ agentOptions: expect.anything() }))
+  })
 })
