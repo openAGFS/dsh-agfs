@@ -37,7 +37,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/yfjz/dsh-agfs.git"
+    "url": "git+https://github.com/openAGFS/dsh-agfs.git"
   },
   "engines": {
     "node": "^22.19.0 || >=24.0.0"
