@@ -138,14 +138,16 @@ pnpm run build:frontend   # 修改 assets/app.jsx 后重新生成 assets/app.js
 
 ## 发布
 
-发布由 tag 驱动：推 `v*` tag 会触发 GitHub Actions（`.github/workflows/publish.yml`）自动发布到 npm。为降低发布噪音，**每累计 10 次提交到 `main` 才发一次版**——用规则脚本执行：
+发布由 tag 驱动：推 `v*` tag 会触发 GitHub Actions（`.github/workflows/publish.yml`）自动发布到 npm。**tag 完全手动触发——脚本不会自动打 tag**：
 
 ```sh
-pnpm run release            # 累计满 10 次提交时才发版
-pnpm run release -- --dry-run   # 预览（不写入、不推送）
+pnpm run release                     # 仅查看发布状态（不写入）
+pnpm run release -- --do             # 立即发版（递增 patch）：提交 + 打 tag + 推送
+pnpm run release -- --do --version 0.2.0   # 按指定版本发版
+pnpm run release -- --do --dry-run   # 预览（不写入、不推送）
 ```
 
-`scripts/release.mjs` 统计自上次 `v*` tag 以来的提交数：不足阈值时只打印进度、不做任何事；达到阈值时递增 patch 版本、提交 `chore: release vX.Y.Z`、创建 tag 并推送 `main` 与 tag。仓库需配置 `NPM_TOKEN` secret。本包把已发布的 `@deepseek-ai/dsh-*` 工具链包声明为 peer 依赖，发布安装可从 npm 解析。
+`scripts/release.mjs` 无参数时打印当前版本、上次 `v*` tag 及自其以来的提交数；带 `--do` 时递增版本、提交 `chore: release vX.Y.Z`、创建 tag 并推送 `main` 与 tag。仓库需配置 `AGFS` secret（带 bypass-2FA 的细粒度 npm 发布 token）。本包把已发布的 `@deepseek-ai/dsh-*` 工具链包声明为 peer 依赖，发布安装可从 npm 解析。
 
 ## Star History
 

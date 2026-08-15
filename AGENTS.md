@@ -24,7 +24,7 @@ tests/               vitest 套件（单元 + 真实 Loader 组合）
   tool.spec.ts       browse_files 工具测试
   composition.spec.ts 真实 Loader + 真实 HTTP socket 组合测试（生命周期/HMR 安全）
 scripts/
-  release.mjs        发布规则助手：每 10 次提交发一次版
+  release.mjs        手动发布助手：默认仅报告状态，`--do` 才打 tag
 docs/screenshots/    README 截图与演示 GIF
 .github/workflows/   ci.yml（lint/typecheck/test/build/pack）+ publish.yml（tag 触发 npm 发布）
 cordis.patch.yml     bundle 补丁层（挂载行）
@@ -39,8 +39,8 @@ pnpm typecheck                # tsc --noEmit（src + tests）
 pnpm lint                     # oxlint（精选规则，关闭默认噪音）
 pnpm build                    # tsc 类型 + tsdown 打包 -> lib/
 pnpm run build:frontend       # 改 assets/app.jsx 后重新编译 assets/app.js
-pnpm run release              # 满 10 次提交时发版（打 tag 触发 CI 发布）
-pnpm run release -- --dry-run # 预览发版
+pnpm run release              # 查看发布状态；`--do` 手动发版（打 tag 触发 CI 发布）
+pnpm run release -- --do --dry-run # 预览发版（不写入、不推送）
 ```
 
 改动提交前至少跑一遍 `pnpm test && pnpm typecheck && pnpm lint`；改过前端必须再 `pnpm run build:frontend` 并确认组合测试的标记断言仍通过（CI 全量跑所有门禁）。
@@ -55,7 +55,7 @@ pnpm run release -- --dry-run # 预览发版
 - **前端标记纪律**：组合测试断言 `app.jsx` 与 `app.js` 中同时存在的关键标记（如 `open-local-float`、`isTextPreview`、`自定义根`）——改前端文案/结构时保持标记一致，否则测试变红。
 - **双语文档纪律**：README 中英配对（`README.md` + `README.zh.md` + `README.i18n.yaml`）；改任一侧必须同步另一侧并刷新哈希（`git hash-object README.md README.zh.md` 写入 i18n 文件）。
 - **文档随代码更新**：任何改动触及 README 描述的行为（命令、配置、功能、发布流程），必须同批更新文档。
-- **发布纪律**：发布由 tag 驱动且**每 10 次提交发一次版**（见下方「发布」）。不要每次提交都打 tag；不要直接改版本号绕过 `scripts/release.mjs` 的节奏。
+- **发布纪律**：发布由 tag 驱动且**tag 完全手动触发**（见下方「发布」）。`scripts/release.mjs` 永不自动打 tag；不直接改版本号绕过发布流程。
 - **不使用 emoji**：代码、注释、文档、提交信息保持纯文本（需要装饰用 `-`、`*`、`×`）。仓库未设 CI 检查，靠约定自律。
 
 ## 开发与贡献流程
@@ -76,7 +76,7 @@ pnpm run release -- --dry-run # 预览发版
 
 ### 发布（维护者）
 
-**每 10 次提交到 main 发一次版**：`scripts/release.mjs` 统计自上次 `v*` tag 以来的提交数，不足 10 次只打印进度；满 10 次时递增 patch 版本、提交 `chore: release vX.Y.Z`、打 `vX.Y.Z` tag 并推送（触发 `.github/workflows/publish.yml` 自动发 npm）。工作树不干净时脚本拒绝执行。发布后如 profile 已安装本包，需 `dsh plugin --profile web add @open-agfs/dsh-agfs@<新版本>` 并重启 dsh 生效（bundle 版本变更属启动时读取）。
+**tag 手动触发，脚本不自动打**：`scripts/release.mjs` 无参数时仅打印当前版本、上次 `v*` tag 与自其以来的提交数；需要发版时手动执行 `pnpm run release -- --do`（或 `--do --version <x.y.z>` 指定版本），脚本递增版本、提交 `chore: release vX.Y.Z`、打 `vX.Y.Z` tag 并推送（触发 `.github/workflows/publish.yml` 自动发 npm）。工作树不干净时脚本拒绝执行。发布后如 profile 已安装本包，需 `dsh plugin --profile web add @open-agfs/dsh-agfs@<新版本>` 并重启 dsh 生效（bundle 版本变更属启动时读取）。
 
 ## 分层指令体系
 

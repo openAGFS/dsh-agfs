@@ -138,14 +138,16 @@ The frontend source is `assets/app.jsx`; its compiled form `assets/app.js` (clas
 
 ## Publishing
 
-Releases are tag-driven: pushing a `v*` tag triggers GitHub Actions (`.github/workflows/publish.yml`) to publish to npm. To keep release noise low, **one release is cut every 10 commits to `main`** — run the rule helper:
+Releases are tag-driven: pushing a `v*` tag triggers GitHub Actions (`.github/workflows/publish.yml`) to publish to npm. **Tags are cut manually — the script never tags on its own**:
 
 ```sh
-pnpm run release            # cut a release only when 10 commits have accumulated
-pnpm run release -- --dry-run   # preview without writing or pushing
+pnpm run release                    # report release state only (no writes)
+pnpm run release -- --do            # cut a release now (patch bump): commit + tag + push
+pnpm run release -- --do --version 0.2.0   # cut a release at a chosen version
+pnpm run release -- --do --dry-run  # preview without writing or pushing
 ```
 
-`scripts/release.mjs` counts the commits since the last `v*` tag; below the threshold it prints the progress and does nothing, at the threshold it bumps the patch version, commits `chore: release vX.Y.Z`, creates the tag, and pushes `main` + the tag. The repository needs an `NPM_TOKEN` secret. The package declares the published `@deepseek-ai/dsh-*` harness packages as peers, so a published install resolves them from npm.
+`scripts/release.mjs` without flags prints the current version, the last `v*` tag, and the commit count since it; with `--do` it bumps the version, commits `chore: release vX.Y.Z`, creates the tag, and pushes `main` + the tag. The repository needs an `AGFS` secret (a granular npm publish token with bypass-2FA). The package declares the published `@deepseek-ai/dsh-*` harness packages as peers, so a published install resolves them from npm.
 
 ## Star History
 
