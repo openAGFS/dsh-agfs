@@ -163,6 +163,14 @@ function mintAgent(ctx: Context): Agent {
   return { id: session.id, session } as Agent
 }
 
+let workspaceAgentSeq = 0
+
+/** Mint a live-session agent whose session cwd (workspace) is a real directory. */
+function mintWorkspaceAgent(ctx: Context, cwd: string): Agent {
+  const session = ctx.sessions.create(SessionId(`composition-agent-ws-${workspaceAgentSeq++}`), { meta: { cwd } })
+  return { id: session.id, session } as Agent
+}
+
 describe('real Loader composition', () => {
   it('ships a bundle patch that mounts the plugin by bare name', async () => {
     const packageRoot = fileURLToPath(new URL('..', import.meta.url))
@@ -597,6 +605,38 @@ describe('real Loader composition', () => {
     expect(erroredResult?.result.kind).toBe('error')
     if (erroredResult?.result.kind !== 'error') return
     expect(erroredResult.result.text).toContain('no browser binary')
+  })
+
+  it('opens the browser at the session workspace directory on command', { timeout: 60_000 }, async () => {
+    openControl.openInBrowser.mockResolvedValue(undefined)
+    const { ctx } = await loadComposition('')
+    const browse = join(root ?? '', 'browse')
+    const agent = mintWorkspaceAgent(ctx, browse)
+    const expectedUrl = `http://127.0.0.1:${ctx.webServer.port}/dsh-agfs/?path=${encodeURIComponent(browse)}`
+    const result = await ctx.commands.execute(agent, '/dsh-agfs', new AbortController().signal)
+    expect(result?.result).toEqual({ kind: 'success', text: `文件浏览器已打开: ${expectedUrl}` })
+    expect(openControl.openInBrowser).toHaveBeenCalledWith(expectedUrl)
+  })
+
+  it('reports the workspace URL without opening when disabled', { timeout: 60_000 }, async () => {
+    const { ctx } = await loadComposition('    openOnCommand: false')
+    const browse = join(root ?? '', 'browse')
+    const agent = mintWorkspaceAgent(ctx, browse)
+    const result = await ctx.commands.execute(agent, '/dsh-agfs', new AbortController().signal)
+    expect(result?.result).toEqual({
+      kind: 'success',
+      text: `文件浏览器: http://127.0.0.1:${ctx.webServer.port}/dsh-agfs/?path=${encodeURIComponent(browse)}`,
+    })
+  })
+
+  it('falls back to the bare URL when the session cwd directory is missing', { timeout: 60_000 }, async () => {
+    const { ctx } = await loadComposition('')
+    const agent = mintWorkspaceAgent(ctx, join(root ?? '', 'missing-workspace'))
+    const result = await ctx.commands.execute(agent, '/dsh-agfs', new AbortController().signal)
+    expect(result?.result).toEqual({
+      kind: 'success',
+      text: `文件浏览器已打开: http://127.0.0.1:${ctx.webServer.port}/dsh-agfs/`,
+    })
   })
 
   it('disposing the plugin fiber removes the route and the command', { timeout: 60_000 }, async () => {

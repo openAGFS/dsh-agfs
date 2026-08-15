@@ -8,7 +8,7 @@
  * @module @open-agfs/dsh-agfs
  */
 
-import { createReadStream } from 'node:fs'
+import { createReadStream, existsSync, statSync } from 'node:fs'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import type { Context } from '@deepseek-ai/cordis'
 import z from '@deepseek-ai/schemastery'
@@ -64,9 +64,27 @@ function normalizeBasePath(basePath: string): string {
   return basePath
 }
 
-/** The absolute URL of the file browser for the current webserver port. */
-function appUrl(ctx: Context, basePath: string): string {
-  return `http://127.0.0.1:${ctx.webServer.port}${basePath}/`
+/**
+ * The absolute URL of the file browser for the current webserver port; with a
+ * target, the URL carries `?path=` so the frontend boots at that directory.
+ */
+function appUrl(ctx: Context, basePath: string, target?: string): string {
+  const base = `http://127.0.0.1:${ctx.webServer.port}${basePath}/`
+  return target === undefined ? base : `${base}?path=${encodeURIComponent(target)}`
+}
+
+/**
+ * The current session's workspace directory — the same absolute cwd the
+ * workspace registry groups sessions by — or undefined when the session
+ * carries no cwd or the directory is missing.
+ */
+function workspaceTarget(invocation: CommandInvocation): string | undefined {
+  const cwd = invocation.agent.session.header.cwd
+  if (cwd === undefined || cwd === '') return undefined
+  try {
+    if (existsSync(cwd) && statSync(cwd).isDirectory()) return cwd
+  } catch { /* an unreadable cwd falls back to the browser root */ }
+  return undefined
 }
 
 /**
@@ -88,7 +106,7 @@ export function apply(ctx: Context, config: Config): void {
   }
 
   const commandHandler = async (invocation: CommandInvocation): Promise<CommandResult> => {
-    const url = appUrl(ctx, basePath)
+    const url = appUrl(ctx, basePath, workspaceTarget(invocation))
     if (invocation.rawInput.trim() !== '') {
       return { kind: 'error', text: `Usage: /dsh-agfs (no arguments); the file browser is at ${url}` }
     }

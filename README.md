@@ -26,7 +26,7 @@ then start `dsh web --patch ./overlay.yml` and run `/dsh-agfs` in the GUI. Plugi
 
 ## Command
 
-`/dsh-agfs` opens the file browser in the system default browser and reports its URL. With `openOnCommand: false` it only reports the URL. Extra arguments are rejected.
+`/dsh-agfs` opens the file browser in the system default browser and reports its URL. When the current session carries a workspace directory (its cwd), the browser boots directly at that workspace directory. With `openOnCommand: false` it only reports the URL. Extra arguments are rejected.
 
 ## Config
 

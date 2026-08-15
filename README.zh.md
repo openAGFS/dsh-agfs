@@ -26,7 +26,7 @@ dsh plugin --profile web add @open-agfs/dsh-agfs
 
 ## 命令
 
-`/dsh-agfs` 在系统默认浏览器中打开文件浏览器并返回地址。设置 `openOnCommand: false` 时只返回地址。带参数会报错。
+`/dsh-agfs` 在系统默认浏览器中打开文件浏览器并返回地址；当当前会话带有工作区目录（session cwd）时，浏览器会直接定位到该工作区目录。设置 `openOnCommand: false` 时只返回地址。带参数会报错。
 
 ## 配置
 
