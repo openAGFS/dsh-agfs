@@ -2,19 +2,63 @@
 
 English | [中文](README.zh.md)
 
-File-browser web app served by the dsh webserver, with a human `/dsh-agfs` command. The package ports the standalone `server.js` file-browser backend (same `{success:true,data}` / `{success:false,error}` contract and path-safety rules) into a Cordis plugin: it registers a prefix route under `basePath` that serves the React file-browser frontend and its REST API, and a command that opens the app in the system default browser. It rides the composing `dsh web` server — no separate port and no subprocess.
+![File browser main view](docs/screenshots/01-main.png)
 
-This repository is the standalone home of the plugin (previously developed inside the deepseek-harness monorepo); it builds, tests, and publishes as an ordinary npm package.
+**A file-browser web app for DeepSeek Harness** — a React frontend and REST API served by the host webserver, plus a `/dsh-agfs` command and a `browse_files` model tool. It rides the composing `dsh web` server: no separate port, no subprocess.
+
+![Demo](docs/screenshots/demo.gif)
+
+## Features
+
+| File browsing | Folders and text preview | Sidebar |
+| --- | --- | --- |
+| ![File browsing](docs/screenshots/01-main.png) | ![docs folder](docs/screenshots/02-docs.png) | ![host folder](docs/screenshots/03-host.png) |
+
+- **Full file browser** — list/search, text preview (markdown, code, logs), image preview, and create/rename/copy/delete folders.
+- **`/dsh-agfs` command** — opens the file browser in the system default browser and **automatically navigates to the current session's workspace directory** (session cwd); switch workspaces and it follows.
+- **`browse_files` model tool** — the model can list or recursively search the browser root directly.
+- **Path safety** — browsing confined to the root, `strictRoot` real-path checks, symlink/junction escape interception (clean 400 envelope), `readOnly` mode, `remoteMode`.
+- **Offline frontend** — React/ReactDOM ship in the package; boots without a CDN or Babel.
+- **Security headers** — `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: no-referrer`.
+- **`dsh.bundle` one-line install** — activates as a profile layer.
 
 ## Install
 
-Published users install the plugin as a profile layer in one line:
+### Option 1: one-click via natural language in the dsh dialog (recommended)
+
+In the **DeepSeek Harness web dialog**, ask the agent directly, for example:
+
+> Install the file-browser plugin `dsh-agfs`
+
+> Install the npm package `@open-agfs/dsh-agfs`
+
+The agent invokes a shell tool to run:
 
 ```sh
 dsh plugin --profile web add @open-agfs/dsh-agfs
 ```
 
-From a checkout of this repository, mount the source through a `--patch` overlay row instead:
+Then **restart dsh web** (or ask the agent to restart it) and run `/dsh-agfs` in the dialog to open the file browser.
+
+> **Prerequisite**: this flow needs the agent's shell tools (`bash`/`pwsh`) enabled and permitted. The web profile disables shell tools by default — enable them under Settings → tools/permissions, or approve the command when the agent asks. Without shell tools, use Option 2.
+
+### Option 2: one-line CLI install
+
+```sh
+dsh plugin --profile web add @open-agfs/dsh-agfs
+```
+
+After the install, **restart dsh web** and run `/dsh-agfs` in the dialog.
+
+**Upgrade to the latest version**:
+
+```sh
+dsh plugin --profile web add @open-agfs/dsh-agfs@latest
+```
+
+### Option 3: source overlay (for development)
+
+From a checkout of this repository, mount the source through a `--patch` overlay:
 
 ```yaml
 - insert:
@@ -22,11 +66,13 @@ From a checkout of this repository, mount the source through a `--patch` overlay
       name: 'file:///absolute/path/to/dsh-agfs/src/index.ts'
 ```
 
-then start `dsh web --patch ./overlay.yml` and run `/dsh-agfs` in the GUI. Plugin code changes need a dsh restart; frontend assets are served from disk per request.
+then `dsh web --patch ./overlay.yml`. Plugin code changes need a dsh restart; frontend assets are served from disk per request.
 
-## Command
+## Usage
 
-`/dsh-agfs` opens the file browser in the system default browser and reports its URL. When the current session carries a workspace directory (its cwd), the browser boots directly at that workspace directory. With `openOnCommand: false` it only reports the URL. Extra arguments are rejected.
+- Run `/dsh-agfs` in the dialog: the system default browser opens the file browser and reports its URL; **when the current session carries a workspace directory (session cwd), the browser boots directly at that workspace**.
+- With `openOnCommand: false` the URL is only reported, the browser is not opened.
+- Click a file to preview text/images; use the toolbar search (recursive, 200-hit cap); the sidebar offers quick access (Desktop/Downloads/Documents…), custom roots, and drives; right-click for create folder / rename / copy / delete (subject to `readOnly`).
 
 ## Config
 
@@ -37,66 +83,58 @@ then start `dsh web --patch ./overlay.yml` and run `/dsh-agfs` in the GUI. Plugi
 | `projectRoot` | working directory | Project root shown in the sidebar. |
 | `remoteMode` | `false` | When true, the `open`, `open_location`, and `copy` endpoints are disabled. |
 | `readOnly` | `false` | When true, the `delete`, `create_folder`, `rename`, and `copy` endpoints answer 403; browsing stays fully readable. |
-| `strictRoot` | `false` | When true, browsing is locked inside `fileRoot`: absolute paths are rejected and relative paths are verified through real paths, so symlink and junction escapes fail with a 400 envelope. |
-| `roots` | `{}` | Named browse roots shown in the sidebar as `name -> path`; entries that do not resolve to an existing directory are dropped, the rest sort by name. |
+| `strictRoot` | `false` | When true, browsing is locked inside `fileRoot`: absolute paths are rejected and symlink/junction escapes fail with a 400 envelope. |
+| `roots` | `{}` | Named browse roots shown in the sidebar as `name -> path`; entries that do not resolve to an existing directory are dropped. |
 | `openOnCommand` | `true` | Whether `/dsh-agfs` opens the system default browser. |
+
+Config lives in the profile's user patch layer (`$DSH_HOME/profiles/<name>/cordis.patch.yml`):
+
+```yaml
+- id: dsh-agfs
+  config:
+    fileRoot: 'D:/projects/my-project'
+    readOnly: true
+```
 
 ## API
 
-The frontend calls the same endpoint set as the original backend under `${basePath}/api/file_browser/`: `list`, `read`, `download`, `open`, `open_location`, `search`, `info`, `workspace`, `sidebar`, `thumbnail`, `mode`, `debug`, `delete`, `create_folder`, `rename`, and `copy`. Paths are confined under the browsable root; absolute paths outside the root are rejected. The `mode` endpoint classifies a request as remote when the client IP is not local or `remoteMode` is on.
-
-`search` accepts `recursive=1` (also `true`/`yes`) to walk the tree with a 200-hit cap and a directory-depth cap of 5; unreadable directories are skipped silently. The `sidebar` response carries the configured `roots`. Every response includes `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, and `Referrer-Policy: no-referrer`; static assets answer GET/HEAD only, and path-safety violations surface as clean 400 envelopes. The frontend previews images and common text formats (markdown, code, logs) in an overlay.
+The frontend calls the endpoint set under `${basePath}/api/file_browser/`: `list`, `read`, `download`, `open`, `open_location`, `search`, `info`, `workspace`, `sidebar`, `thumbnail`, `mode`, `debug`, `delete`, `create_folder`, `rename`, `copy`. Paths are confined under the browsable root. `search` accepts `recursive=1` (also `true`/`yes`) with a 200-hit cap and a directory-depth cap of 5. Every response carries the security headers; static assets answer GET/HEAD only.
 
 ## Model tool
 
-The plugin registers `browse_files` (parameters `path`, `keyword`, `recursive`) over the same pure core the HTTP layer uses; the model can list or search the browser root directly. See the Model Experience section for the model-visible contract.
+The plugin registers `browse_files` (parameters `path`, `keyword`, `recursive`) over the same pure core the HTTP layer uses; the model can list or search the browser root directly. It returns a canonical `{ items: [...] }` value rendered as `TYPE<TAB>SIZE<TAB>PATH` text lines; the parameter schema and description flow into the assembled prompt like every other registered tool.
+
+## Known Limitations
+
+- **Font Awesome icons load from cdnjs** — boot no longer needs a CDN (React/ReactDOM are vendored and Babel is eliminated by the precompiled `app.js`), but the toolbar icons still come from cdnjs; without network access the app works without icons.
+- **Shallow search only** — `search` matches entry names in one directory (200-hit cap); recursive content search is not implemented.
+- **Thumbnails stream the original image** — no resize is performed; large images are sent in full and scaled by CSS.
+- **`openOnCommand` spawns on the host** — the browser opens on the machine running dsh, which is correct for a loopback deployment but surprising for remote clients.
 
 ## Development
 
 ```sh
 pnpm install
-pnpm test        # vitest: unit suites plus the real-Loader composition suite
-pnpm typecheck   # tsc --noEmit over src and tests
+pnpm test        # vitest: unit suites plus the real-Loader composition suite (94 tests)
+pnpm typecheck   # tsc --noEmit
 pnpm lint        # oxlint
 pnpm build       # tsc types + tsdown bundles -> lib/
+pnpm run build:frontend   # regenerate assets/app.js after editing assets/app.jsx
 ```
 
-The frontend source is `assets/app.jsx`; its compiled form `assets/app.js` (classic JSX runtime, no Babel at runtime) and the vendored React/ReactDOM UMD builds under `assets/vendor/` ship in the package so the app boots without a CDN. After editing `app.jsx`, regenerate:
-
-```sh
-pnpm run build:frontend
-```
+The frontend source is `assets/app.jsx`; its compiled form `assets/app.js` (classic JSX runtime, no Babel at runtime) and the vendored React/ReactDOM UMD builds under `assets/vendor/` ship in the package so the app boots without a CDN.
 
 ## Publishing
-
-Bump the version, tag it, and push — the Publish workflow (`.github/workflows/publish.yml`) publishes the tagged version to npm:
 
 ```sh
 pnpm version patch   # or minor/major; sets package.json version and a git tag
 git push --follow-tags
 ```
 
-Publishing needs an `NPM_TOKEN` secret on the GitHub repository. The package declares the published `@deepseek-ai/dsh-*` harness packages as peers, so a published install resolves them from npm.
+Pushing a `v*` tag triggers GitHub Actions (`.github/workflows/publish.yml`) to publish to npm. The repository needs an `NPM_TOKEN` secret. The package declares the published `@deepseek-ai/dsh-*` harness packages as peers, so a published install resolves them from npm.
 
-## Model Experience
+## Links
 
-### File browsing tools
-
-#### What the model sees
-
-The plugin registers the `browse_files` tool on the tool registry; its parameter schema (path, keyword, recursive) and description flow into the assembled prompt like every other registered tool. The tool lists directory entries or searches entry names over the configured browser root and returns a canonical `{ items: [...] }` value, rendered as `TYPE<TAB>SIZE<TAB>PATH` text lines.
-
-#### Token effect
-
-One schema entry plus the tool description per prompt assembly; tool results contribute one rendered block per call. Both are fixed-size relative to the tree depth the call touches.
-
-#### KV Cache effect
-
-The prompt contribution is stable across turns (schema and description are static per configuration), so assembled prefixes remain reusable; only configuration changes invalidate the prompt portion.
-
-## Known Limitations and Deferred Work
-
-- **Font Awesome icons load from cdnjs** — boot no longer needs a CDN (React/ReactDOM are vendored and Babel is eliminated by the precompiled `app.js`), but the toolbar icons still come from cdnjs; without network access the app works without icons.
-- **Shallow search only** — `search` matches entry names in one directory (200-hit cap), matching the original backend; recursive content search is not implemented.
-- **Thumbnails stream the original image** — no resize is performed; large images are sent in full and scaled by CSS.
-- **`openOnCommand` spawns on the host** — the browser opens on the machine running dsh, which is correct for a loopback deployment but surprising for remote clients.
+- npm: https://www.npmjs.com/package/@open-agfs/dsh-agfs
+- Source: https://github.com/openAGFS/dsh-agfs
+- Requirements: Node `^22.19 || >=24`; peers `@deepseek-ai/dsh-*` (rc.6)
