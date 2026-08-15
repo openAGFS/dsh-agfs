@@ -1,11 +1,11 @@
 /**
- * @agfs/dsh-agfs — file-browser web app served by the host webserver
+ * @open-agfs/dsh-agfs — file-browser web app served by the host webserver
  * with a human `/dsh-agfs` command. The plugin registers a prefix route at
  * `basePath` (static assets plus the `file_browser` API, ported from the
  * standalone server.js backend) and a command that opens the app in the system
  * default browser. Everything rides the composing dsh web server: no separate
  * port, no process.
- * @module @agfs/dsh-agfs
+ * @module @open-agfs/dsh-agfs
  */
 
 import { createReadStream } from 'node:fs'

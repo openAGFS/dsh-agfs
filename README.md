@@ -1,4 +1,4 @@
-# @agfs/dsh-agfs
+# @open-agfs/dsh-agfs
 
 English | [中文](README.zh.md)
 
@@ -11,7 +11,7 @@ This repository is the standalone home of the plugin (previously developed insid
 Published users install the plugin as a profile layer in one line:
 
 ```sh
-dsh plugin --profile web add @agfs/dsh-agfs
+dsh plugin --profile web add @open-agfs/dsh-agfs
 ```
 
 From a checkout of this repository, mount the source through a `--patch` overlay row instead:

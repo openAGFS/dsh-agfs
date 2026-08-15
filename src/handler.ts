@@ -5,7 +5,7 @@
  * so the plugin's HTTP layer stays a thin materializer and every endpoint is
  * unit-testable. Response shapes mirror the original contract exactly
  * (`{success:true,data,message}` / `{success:false,error}`).
- * @module @agfs/dsh-agfs/handler
+ * @module @open-agfs/dsh-agfs/handler
  */
 
 import { createReadStream, existsSync, realpathSync, statSync } from 'node:fs'

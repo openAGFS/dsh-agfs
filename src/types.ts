@@ -1,7 +1,7 @@
 /**
- * Shared type declarations for `@agfs/dsh-agfs`. Types only — no runtime
+ * Shared type declarations for `@open-agfs/dsh-agfs`. Types only — no runtime
  * code, per the package conventions.
- * @module @agfs/dsh-agfs/types
+ * @module @open-agfs/dsh-agfs/types
  */
 
 /** Plugin configuration after schemastery validation. */

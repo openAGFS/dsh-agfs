@@ -35,7 +35,7 @@ const openControl = vi.hoisted(() => ({
 
 vi.mock('../src/open.ts', () => openControl)
 
-const AGFS = '@agfs/dsh-agfs'
+const AGFS = '@open-agfs/dsh-agfs'
 const WEBSERVER = '@deepseek-ai/dsh-host-webserver'
 
 let root: string | undefined
@@ -170,7 +170,7 @@ describe('real Loader composition', () => {
       insert?: Array<{ id?: string; name?: string }>
     }>
     const row = patch[0]?.insert?.[0]
-    expect(row).toMatchObject({ id: 'dsh-agfs', name: '@agfs/dsh-agfs' })
+    expect(row).toMatchObject({ id: 'dsh-agfs', name: '@open-agfs/dsh-agfs' })
     const manifest = JSON.parse(await readFile(join(packageRoot, 'package.json'), 'utf8')) as {
       dsh?: { bundle?: { patch?: string } }
       files?: string[]

@@ -1,4 +1,4 @@
-# @agfs/dsh-agfs
+# @open-agfs/dsh-agfs
 
 [English](README.md) | 中文
 
@@ -11,7 +11,7 @@
 发布用户一条命令安装为 profile 层：
 
 ```sh
-dsh plugin --profile web add @agfs/dsh-agfs
+dsh plugin --profile web add @open-agfs/dsh-agfs
 ```
 
 从本仓库检出则改用 `--patch` 覆盖层挂载源码：

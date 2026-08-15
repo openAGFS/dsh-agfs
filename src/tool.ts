@@ -4,7 +4,7 @@
  * listing and recursive search behave identically for the model and the web
  * UI. It is registered by the plugin on `ctx.tools`; its parameter schema
  * flows into the model prompt automatically.
- * @module @agfs/dsh-agfs/tool
+ * @module @open-agfs/dsh-agfs/tool
  */
 
 import type { Context } from '@deepseek-ai/cordis'
