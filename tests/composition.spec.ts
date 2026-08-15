@@ -523,6 +523,11 @@ describe('real Loader composition', () => {
     expect(jsx.body).toContain('一键AI分析')
     expect(jsx.body).toContain('开始分析')
     expect(jsx.body).toContain('analyze-input')
+    // The theme support: a toolbar button cycles modern (default) and the
+    // optional Win10 theme; markers live in the served source and bundle.
+    expect(jsx.body).toContain('theme-win10')
+    expect(jsx.body).toContain('theme-mode-label')
+    expect(jsx.body).toContain('Win10')
     // The precompiled bundle the page actually loads carries the same markers.
     const app = await http(ctx, 'GET', '/dsh-agfs/app.js')
     expect(app.status).toBe(200)
@@ -539,12 +544,17 @@ describe('real Loader composition', () => {
     expect(app.body).toContain('一键AI分析')
     expect(app.body).toContain('开始分析')
     expect(app.body).toContain('analyze-input')
+    expect(app.body).toContain('theme-win10')
+    expect(app.body).toContain('theme-mode-label')
+    expect(app.body).toContain('Win10')
     const react = await http(ctx, 'GET', '/dsh-agfs/vendor/react.production.min.js')
     expect(react.status).toBe(200)
     const reactDom = await http(ctx, 'GET', '/dsh-agfs/vendor/react-dom.production.min.js')
     expect(reactDom.status).toBe(200)
     const css = await http(ctx, 'GET', '/dsh-agfs/webbrowser.css')
     expect(css.body).toContain('.preview-text')
+    expect(css.body).toContain('body.theme-win10')
+    expect(css.body).toContain('.browser.theme-win10')
   })
 
   it('registers and executes the browse_files tool in the real composition', { timeout: 60_000 }, async () => {

@@ -245,7 +245,7 @@ function Sidebar({ remoteMode, curPath, project, quick, drives, roots, onHome, o
 
 /* ============================ 工具栏 ============================ */
 
-function Toolbar({ crumbs, onNavigate, searchText, onSearch, viewMode, onViewMode, onNewFolder, onToggleSidebar, sizeMode, onCycleSize }) {
+function Toolbar({ crumbs, onNavigate, searchText, onSearch, viewMode, onViewMode, onNewFolder, onToggleSidebar, sizeMode, onCycleSize, theme, onCycleTheme }) {
   const curStyle = { background: 'white', color: '#0b1e33', fontWeight: 600 };
   const separator = (crumbs || '').includes('\\') ? '\\' : '/';
 
@@ -303,6 +303,14 @@ function Toolbar({ crumbs, onNavigate, searchText, onSearch, viewMode, onViewMod
         </div>
         <button className="view-btn" title="新建文件夹" onClick={onNewFolder}>
           <i className="fa-solid fa-folder-plus" />
+        </button>
+        <button
+          className="view-btn theme-btn"
+          title={theme === 'win10' ? '当前:Win10 主题(点击:现代)' : '当前:现代主题(点击:Win10)'}
+          onClick={onCycleTheme}
+        >
+          <i className={`fa-solid ${theme === 'win10' ? 'fa-desktop' : 'fa-palette'}`} />
+          <span className="theme-mode-label">{theme === 'win10' ? 'Win10' : '现代'}</span>
         </button>
         <button
           className="view-btn size-mode-btn"
@@ -797,6 +805,9 @@ function App() {
   const [highlightPath, setHighlightPath] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(false); // 窄屏侧边栏抽屉
   const [sizeMode, setSizeMode] = useState('view'); // view(视图大小) | whole(整个视图) | fullscreen(全屏)
+  const [theme, setTheme] = useState(() => { // modern(毛玻璃默认) | win10(扁平)
+    try { return localStorage.getItem('agfs-theme') || 'modern'; } catch (e) { return 'modern'; }
+  });
 
   const searchTimer = useRef(null);
   const menuRef = useRef(null);
@@ -1098,6 +1109,15 @@ function App() {
     } catch (e) { /* 忽略不支持的环境 */ }
   };
 
+  /* ---- 主题循环:现代(毛玻璃) <-> Win10(扁平);选择持久化到 localStorage ---- */
+  const toggleTheme = () => {
+    setTheme((prev) => {
+      const next = prev === 'win10' ? 'modern' : 'win10';
+      try { localStorage.setItem('agfs-theme', next); } catch (e) { /* 忽略存储失败 */ }
+      return next;
+    });
+  };
+
   useEffect(() => {
     const onFs = () => {
       if (document.fullscreenElement) {
@@ -1109,6 +1129,12 @@ function App() {
     document.addEventListener('fullscreenchange', onFs);
     return () => document.removeEventListener('fullscreenchange', onFs);
   }, []);
+
+  /* ---- 效果:同步 body 主题类(浮层在 .browser 之外,背景与菜单/对话框靠 body 类着色) ---- */
+  useEffect(() => {
+    document.body.classList.toggle('theme-win10', theme === 'win10');
+    return () => document.body.classList.remove('theme-win10');
+  }, [theme]);
 
   /* ---- 效果:关闭右键菜单(点击空白/非文件区右键) ---- */
   useEffect(() => {
@@ -1179,7 +1205,7 @@ function App() {
     <React.Fragment>
       {/* 主界面(浮层必须在 .browser 之外:.browser 带 backdrop-filter + overflow:hidden,
           会让 position:fixed 后代相对其盒子定位并裁剪,导致右键菜单位置偏移/被裁剪) */}
-      <div className={`browser${sidebarOpen ? ' sidebar-open' : ''}${sizeMode === 'view' ? ' size-view' : ' size-whole'}`}>
+      <div className={`browser${sidebarOpen ? ' sidebar-open' : ''}${sizeMode === 'view' ? ' size-view' : ' size-whole'}${theme === 'win10' ? ' theme-win10' : ''}`}>
         <Sidebar remoteMode={remoteMode} curPath={curPath} project={sidebarData.project} quick={sidebarData.quick} drives={sidebarData.drives} roots={sidebarData.roots} onHome={() => loadDirectory('')} onNavigate={loadDirectory} />
         <div className="sidebar-backdrop" onClick={() => setSidebarOpen(false)} />
         <div className="main">
@@ -1194,6 +1220,8 @@ function App() {
             onToggleSidebar={() => setSidebarOpen((v) => !v)}
             sizeMode={sizeMode}
             onCycleSize={toggleSizeMode}
+            theme={theme}
+            onCycleTheme={toggleTheme}
           />
           <ListHeader sort={sort} onSort={handleSort} />
           <FileList

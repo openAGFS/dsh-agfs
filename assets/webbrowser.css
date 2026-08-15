@@ -417,6 +417,18 @@
             white-space: nowrap;
         }
 
+        /* 主题切换按钮:图标 + 当前主题文字 */
+        .theme-btn {
+            width: auto;
+            padding: 0 8px;
+            gap: 5px;
+        }
+        .theme-btn .theme-mode-label {
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
         .view-btn:hover {
             background: rgba(67, 97, 238, 0.1);
             color: #4361ee;
@@ -1998,4 +2010,119 @@
         }
         .open-local-float:active { transform: translateY(0); }
         .open-local-float i { font-size: 15px; }
+
+        /* ========== Win10 主题(可选切换,默认关闭):扁平、直角、Win10 蓝 #0078D7 ==========
+           主题类同时落在 body(浮层在 .browser 之外)与 .browser 上;选择器统一以
+           body.theme-win10 为根,覆盖层特异性高于默认样式,不改动现代主题默认值。 */
+        body.theme-win10 {
+            background: #f3f3f3;
+            font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, 'Microsoft YaHei', sans-serif;
+        }
+
+        .browser.theme-win10 {
+            background: #ffffff;
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.13);
+        }
+        .browser.theme-win10.size-view {
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.13);
+        }
+        .browser.theme-win10.size-whole {
+            border-radius: 0;
+            box-shadow: none;
+        }
+
+        .browser.theme-win10 .sidebar {
+            background: #ffffff;
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+            border-right: 1px solid #e5e5e5;
+        }
+        .browser.theme-win10 .logo-icon {
+            background: #0078d7;
+            border-radius: 2px;
+            box-shadow: none;
+        }
+        .browser.theme-win10 .nav-item { color: #333333; }
+        .browser.theme-win10 .nav-item:hover { background: #f0f0f0; color: #1a1a1a; }
+        .browser.theme-win10 .nav-item.active { background: #cce4f7; color: #005a9e; }
+        .browser.theme-win10 .mode-indicator { background: #f7f7f7; border: 1px solid #e5e5e5; }
+        .browser.theme-win10 .mode-dot { background: #107c10; }
+        .browser.theme-win10 .mode-indicator.remote .mode-dot { background: #d83b01; }
+
+        .browser.theme-win10 .toolbar {
+            background: #ffffff;
+            border-bottom: 1px solid #e5e5e5;
+        }
+        .browser.theme-win10 .breadcrumb-item { color: #444444; border-radius: 2px; }
+        .browser.theme-win10 .breadcrumb-item:hover { background: #f0f0f0; color: #005a9e; }
+        .browser.theme-win10 .search-box {
+            background: #ffffff;
+            border: 1px solid #d0d0d0;
+            box-shadow: none;
+        }
+        .browser.theme-win10 .search-box:hover { border-color: #b0b0b0; }
+        .browser.theme-win10 .search-box:focus-within { border-color: #0078d7; box-shadow: 0 0 0 1px #0078d7; }
+
+        .browser.theme-win10 .view-btn { border-radius: 2px; color: #444444; }
+        .browser.theme-win10 .view-btn:hover { background: #f0f0f0; color: #005a9e; }
+        .browser.theme-win10 .view-btn.active { background: #0078d7; color: #ffffff; }
+
+        .browser.theme-win10 .list-header {
+            background: #f7f7f7;
+            border-bottom: 1px solid #e5e5e5;
+        }
+        .browser.theme-win10 .file-row {
+            background: #ffffff;
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .browser.theme-win10 .file-row:hover { background: #f0f6fc; }
+        .browser.theme-win10 .file-card {
+            background: #ffffff;
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+            border-radius: 2px;
+            border: 1px solid #e0e0e0;
+        }
+        .browser.theme-win10 .file-card:hover {
+            background: #f0f6fc;
+            border-color: #0078d7;
+            box-shadow: none;
+            transform: none;
+        }
+
+        /* 浮层(.browser 之外):菜单 / 对话框 / 提示 / 悬浮按钮 */
+        body.theme-win10 .context-menu {
+            background: #ffffff;
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+            border-radius: 2px;
+            border: 1px solid #c8c8c8;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        body.theme-win10 .context-menu-item:hover { background: #cce4f7; color: #1a1a1a; }
+        body.theme-win10 .modal-overlay { backdrop-filter: none; -webkit-backdrop-filter: none; }
+        body.theme-win10 .modal { background: #ffffff; border-radius: 2px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2); }
+        body.theme-win10 .modal-btn { border-radius: 2px; }
+        body.theme-win10 .modal-btn-download { background: #0078d7; }
+        body.theme-win10 .modal-btn-download:hover { background: #106ebe; }
+        body.theme-win10 .confirm-dialog { backdrop-filter: none; -webkit-backdrop-filter: none; }
+        body.theme-win10 .confirm-dialog .dialog-box { border-radius: 2px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2); }
+        body.theme-win10 .property-dialog .dialog-box { border-radius: 2px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2); }
+        body.theme-win10 .ai-toast { border-radius: 2px; }
+        body.theme-win10 .open-local-float {
+            background: #0078d7;
+            border-radius: 2px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        }
+        body.theme-win10 .open-local-float:hover {
+            background: #106ebe;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.35);
+            transform: none;
+        }
 
