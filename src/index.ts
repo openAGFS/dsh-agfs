@@ -23,7 +23,7 @@ import { SessionId } from '@deepseek-ai/dsh-session'
 import { createUserMessage } from '@deepseek-ai/dsh-llm'
 import { dispatchApi, getClientIp, getSafePath, readJsonBody, resolveAsset, writeOutcome } from './handler.ts'
 import { openInBrowser } from './open.ts'
-import { registerFileBrowseTool } from './tool.ts'
+import { registerFileBrowseTool, registerFileReadTool } from './tool.ts'
 import type { AgfsConfig, Body, Query } from './types.ts'
 
 /** Stable Cordis plugin name. */
@@ -318,5 +318,6 @@ export function apply(ctx: Context, config: Config): void {
     })
     yield ctx.webServer.register({ kind: 'prefix', path: basePath, handler: routeHandler })
     yield registerFileBrowseTool(ctx, resolved)
+    yield registerFileReadTool(ctx, resolved)
   }, 'dsh-agfs lifecycle')
 }

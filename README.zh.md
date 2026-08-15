@@ -4,7 +4,7 @@
 
 ![文件浏览器主界面](docs/screenshots/01-main.png)
 
-**面向 DeepSeek Harness 的文件浏览器插件**——由宿主 webserver 托管的 React 前端与 REST API，附带 `/dsh-agfs` 命令与 `browse_files` 模型工具。随 `dsh web` 同进程运行：无独立端口、无子进程。
+**面向 DeepSeek Harness 的文件浏览器插件**——由宿主 webserver 托管的 React 前端与 REST API，附带 `/dsh-agfs` 命令与 `browse_files`/`read_file` 模型工具。随 `dsh web` 同进程运行：无独立端口、无子进程。
 
 ![演示 Demo](docs/screenshots/demo.gif)
 
@@ -27,7 +27,7 @@
 - **一键AI分析**——右键文件/文件夹 → 输入需求 → dsh 为该目录创建工作区并唤醒新会话的智能体进行分析，会话使用宿主默认模型（仅本机模式）。
 - **完整文件浏览器**——列表/搜索、文本预览（markdown、代码、日志）、图片预览，支持新建/重命名/复制/删除文件夹。
 - **`/dsh-agfs` 命令**——在系统默认浏览器中打开文件浏览器，并**自动定位到当前会话的工作区目录**（session cwd）；切换工作区后再次执行会自动跟随。
-- **`browse_files` 模型工具**——模型可直接列出或递归搜索浏览根。
+- **`browse_files` / `read_file` 模型工具**——模型可直接列出/递归搜索浏览根，并读取其中的文本文件。
 - **路径安全**——浏览根限定、`strictRoot` 实路径校验、符号链接/连接点逃逸拦截（干净 400 信封）、`readOnly` 只读模式、`remoteMode` 远程禁用。
 - **离线前端**——React/ReactDOM 随包发布，无 CDN、无 Babel 即可启动。
 - **安全响应头**——`X-Content-Type-Options: nosniff`、`X-Frame-Options: DENY`、`Referrer-Policy: no-referrer`。
@@ -114,7 +114,12 @@ dsh plugin --profile web add @open-agfs/dsh-agfs@latest
 
 ## 模型工具
 
-插件注册 `browse_files` 工具（参数 `path`、`keyword`、`recursive`），复用与 HTTP 层相同的纯函数核心——模型可直接列出或搜索浏览根。工具返回规范值 `{ items: [...] }`，渲染为 `TYPE<TAB>SIZE<TAB>PATH` 文本行；参数 schema 与描述随工具注册自动流入模型提示词。
+插件注册两个模型工具，复用与 HTTP 层相同的纯函数核心：
+
+- **`browse_files`**（参数 `path`、`keyword`、`recursive`）——列出目录或搜索条目名（可选递归）。返回规范值 `{ items: [...] }`，渲染为 `TYPE<TAB>SIZE<TAB>PATH` 文本行；空 `keyword` 自动回退为普通列出。
+- **`read_file`**（参数 `path`）——读取浏览根下的一个 UTF-8 文本文件（markdown、代码、日志）并返回内容，让分析智能体可以查看文件内容而不只是文件名。
+
+参数 schema 与描述随工具注册自动流入模型提示词。
 
 ## 已知局限
 

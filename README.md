@@ -4,7 +4,7 @@ English | [中文](README.zh.md)
 
 ![File browser main view](docs/screenshots/01-main.png)
 
-**A file-browser web app for DeepSeek Harness** — a React frontend and REST API served by the host webserver, plus a `/dsh-agfs` command and a `browse_files` model tool. It rides the composing `dsh web` server: no separate port, no subprocess.
+**A file-browser web app for DeepSeek Harness** — a React frontend and REST API served by the host webserver, plus a `/dsh-agfs` command and `browse_files`/`read_file` model tools. It rides the composing `dsh web` server: no separate port, no subprocess.
 
 ![Demo](docs/screenshots/demo.gif)
 
@@ -27,7 +27,7 @@ English | [中文](README.zh.md)
 - **一键AI分析** — right-click a file/folder → enter a requirement → dsh creates a workspace for that directory and wakes a fresh session whose agent analyzes it using the host's default model (local mode only).
 - **Full file browser** — list/search, text preview (markdown, code, logs), image preview, and create/rename/copy/delete folders.
 - **`/dsh-agfs` command** — opens the file browser in the system default browser and **automatically navigates to the current session's workspace directory** (session cwd); switch workspaces and it follows.
-- **`browse_files` model tool** — the model can list or recursively search the browser root directly.
+- **`browse_files` / `read_file` model tools** — the model can list or recursively search the browser root, and read text files under it, directly.
 - **Path safety** — browsing confined to the root, `strictRoot` real-path checks, symlink/junction escape interception (clean 400 envelope), `readOnly` mode, `remoteMode`.
 - **Offline frontend** — React/ReactDOM ship in the package; boots without a CDN or Babel.
 - **Security headers** — `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: no-referrer`.
@@ -112,9 +112,14 @@ Config lives in the profile's user patch layer (`$DSH_HOME/profiles/<name>/cordi
 
 The frontend calls the endpoint set under `${basePath}/api/file_browser/`: `list`, `read`, `download`, `open`, `open_location`, `search`, `info`, `workspace`, `sidebar`, `thumbnail`, `mode`, `debug`, `delete`, `create_folder`, `rename`, `copy`, and `analyze` (one-click AI analysis, local mode only). Paths are confined under the browsable root. `search` accepts `recursive=1` (also `true`/`yes`) with a 200-hit cap and a directory-depth cap of 5. Every response carries the security headers; static assets answer GET/HEAD only.
 
-## Model tool
+## Model tools
 
-The plugin registers `browse_files` (parameters `path`, `keyword`, `recursive`) over the same pure core the HTTP layer uses; the model can list or search the browser root directly. It returns a canonical `{ items: [...] }` value rendered as `TYPE<TAB>SIZE<TAB>PATH` text lines; the parameter schema and description flow into the assembled prompt like every other registered tool.
+The plugin registers two model tools over the same pure core the HTTP layer uses:
+
+- **`browse_files`** (parameters `path`, `keyword`, `recursive`) — list a directory or search entry names (optionally recursively). Returns a canonical `{ items: [...] }` value rendered as `TYPE<TAB>SIZE<TAB>PATH` text lines; a blank `keyword` falls back to a plain listing.
+- **`read_file`** (parameter `path`) — read one UTF-8 text file (markdown, code, logs) under the browser root and return its content, so an analysis agent can inspect file contents, not only names.
+
+The parameter schemas and descriptions flow into the assembled prompt like every other registered tool.
 
 ## Known Limitations
 

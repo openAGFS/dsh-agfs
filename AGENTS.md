@@ -1,6 +1,6 @@
 # dsh-agfs — 仓库规则
 
-DeepSeek Harness 的文件浏览器插件。单包仓库：React 前端 + REST API 由宿主 webserver 托管，附带 `/dsh-agfs` 命令与 `browse_files` 模型工具。插件是独立的 cordis bundle 包，经 `cordis.patch.yml` + profile 机制挂载到 `dsh web`，**绝不修改 DSH 源码**。
+DeepSeek Harness 的文件浏览器插件。单包仓库：React 前端 + REST API 由宿主 webserver 托管，附带 `/dsh-agfs` 命令与 `browse_files`/`read_file` 模型工具。插件是独立的 cordis bundle 包，经 `cordis.patch.yml` + profile 机制挂载到 `dsh web`，**绝不修改 DSH 源码**。
 
 ## 仓库布局
 
@@ -9,7 +9,7 @@ src/                 服务端插件源码（TypeScript，ESM）
   index.ts           插件入口：name / inject / Config / apply 具名导出，无默认导出
   handler.ts         纯函数 API 核心（路径安全、端点、静态资源），无 HTTP 依赖
   open.ts            系统打开器（浏览器 / 默认应用 / 资源管理器），命令构建与 spawn 封装
-  tool.ts            browse_files 模型工具
+  tool.ts            browse_files / read_file 模型工具
   invariant.ts       包级 invariant 伴侣（注册 manifest 名）
   types.ts           仅类型，无运行时代码
 assets/              前端资产（随包发布，离线可启动）
@@ -21,7 +21,7 @@ assets/              前端资产（随包发布，离线可启动）
 tests/               vitest 套件（单元 + 真实 Loader 组合）
   handler.spec.ts    纯核心单元测试
   open.spec.ts       打开命令构造测试
-  tool.spec.ts       browse_files 工具测试
+  tool.spec.ts       browse_files / read_file 工具测试
   composition.spec.ts 真实 Loader + 真实 HTTP socket 组合测试（生命周期/HMR 安全）
 scripts/
   release.mjs        手动发布助手：默认仅报告状态，`--do` 才打 tag
