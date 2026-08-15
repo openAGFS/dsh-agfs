@@ -1,6 +1,6 @@
 {
   "name": "@open-agfs/dsh-agfs",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "Host file-browser web app over the dsh webserver with a /dsh-agfs command",
   "keywords": [
     "dsh",

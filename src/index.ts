@@ -121,11 +121,14 @@ export async function runAnalysis(
 ): Promise<AnalysisResult> {
   const workspaceRegistry = ctx.get('workspaceRegistry')
   if (workspaceRegistry === undefined) throw new Error('工作区服务不可用')
-  await workspaceRegistry.create(targetPath)
+  const workspace = await workspaceRegistry.create(targetPath)
   const agents = ctx.get('agents')
   if (agents === undefined) throw new Error('智能体服务不可用')
   const sessionId = SessionId(`analysis-${randomUUID()}`)
   const handle = await agents.create({ sessionId, meta: { cwd: targetPath } })
+  // Group the session under the workspace: membership requires an explicit
+  // attach (the GUI's normal session flow attaches on creation).
+  await workspace.attachSession(sessionId)
   handle.agent.followup(createUserMessage({
     content: [{ type: 'text', text: requirement }],
     source: { kind: 'user' },

@@ -12,18 +12,25 @@ import { runAnalysis } from '../src/index.ts'
 describe('runAnalysis', () => {
   it('creates the workspace, mints a session, and wakes the agent with the requirement', async () => {
     const ctx = new Context()
-    const createWorkspace = vi.fn(async () => ({}))
+    const attachSession = vi.fn(async () => undefined)
+    const createWorkspace = vi.fn(async () => ({ attachSession }))
     ctx.provide('workspaceRegistry', { create: createWorkspace } as never)
     const followup = vi.fn()
     const agent = { followup }
     const dispose = vi.fn(async () => undefined)
-    const createAgent = vi.fn(async () => ({ agent, dispose }))
+    const received: { sessionId?: string } = {}
+    const createAgent = vi.fn(async (options: { sessionId: string; meta?: { cwd?: string } }) => {
+      received.sessionId = options.sessionId
+      return { agent, dispose }
+    })
     ctx.provide('agents', { create: createAgent } as never)
 
     const result = await runAnalysis(ctx, 'C:\\proj', 'analyze this directory')
 
     expect(createWorkspace).toHaveBeenCalledWith('C:\\proj')
     expect(createAgent).toHaveBeenCalledWith(expect.objectContaining({ meta: { cwd: 'C:\\proj' } }))
+    expect(attachSession).toHaveBeenCalledTimes(1)
+    expect(attachSession).toHaveBeenCalledWith(received.sessionId)
     expect(followup).toHaveBeenCalledTimes(1)
     const message = followup.mock.calls[0]?.[0] as { content: Array<{ type: string; text: string }>; source: { kind: string } }
     expect(message.content).toEqual([{ type: 'text', text: 'analyze this directory' }])
