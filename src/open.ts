@@ -2,7 +2,7 @@
  * System openers for the file browser: default browser, default application,
  * and file-manager reveal. Pure command builders plus thin spawn wrappers, so
  * tests can pin the exact command lines without spawning anything.
- * @module @yfjz/dsh-agfs/open
+ * @module @agfs/dsh-agfs/open
  */
 
 import { spawn } from 'node:child_process'

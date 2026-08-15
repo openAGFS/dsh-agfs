@@ -1,12 +1,12 @@
 /**
- * Package-owned invariant companion for `@yfjz/dsh-agfs`.
- * @module @yfjz/dsh-agfs/invariant
+ * Package-owned invariant companion for `@agfs/dsh-agfs`.
+ * @module @agfs/dsh-agfs/invariant
  */
 
 import type { Context } from '@deepseek-ai/cordis'
 import type { InvariantInstaller } from '@deepseek-ai/dsh-invariants'
 
-const PACKAGE_NAME = '@yfjz/dsh-agfs'
+const PACKAGE_NAME = '@agfs/dsh-agfs'
 
 /** Cordis companion plugin name. */
 export const name = 'dsh-agfs-invariant'

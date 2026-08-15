@@ -1,5 +1,5 @@
 {
-  "name": "@yfjz/dsh-agfs",
+  "name": "@agfs/dsh-agfs",
   "version": "0.1.0",
   "description": "Host file-browser web app over the dsh webserver with a /dsh-agfs command",
   "keywords": [

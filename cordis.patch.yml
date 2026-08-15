@@ -1,7 +1,7 @@
-# Bundle patch layer for @yfjz/dsh-agfs. Mounting this package as a
+# Bundle patch layer for @agfs/dsh-agfs. Mounting this package as a
 # profile layer (published users: `dsh plugin --profile <name> add
-# @yfjz/dsh-agfs`) inserts the file-browser row; per-layer resolution
+# @agfs/dsh-agfs`) inserts the file-browser row; per-layer resolution
 # anchors on the bundle package directory.
 - insert:
     - id: dsh-agfs
-      name: '@yfjz/dsh-agfs'
+      name: '@agfs/dsh-agfs'
