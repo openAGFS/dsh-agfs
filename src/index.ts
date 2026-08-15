@@ -181,6 +181,7 @@ export function apply(ctx: Context, config: Config): void {
     }
     res.writeHead(200, {
       'Content-Type': asset.mime,
+      'Cache-Control': 'no-cache',
       'X-Content-Type-Options': 'nosniff',
       'X-Frame-Options': 'DENY',
       'Referrer-Policy': 'no-referrer',

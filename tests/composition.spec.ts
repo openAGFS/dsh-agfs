@@ -196,7 +196,7 @@ describe('real Loader composition', () => {
     // Boot runs on vendored React and the precompiled app; no CDN script tags.
     expect(index.body).toContain('vendor/react.production.min.js')
     expect(index.body).toContain('vendor/react-dom.production.min.js')
-    expect(index.body).toContain('app.js?v=1')
+    expect(index.body).toContain('app.js?v=2')
     expect(index.body).not.toContain('unpkg.com')
     expect(index.body).not.toContain('babel')
     const bare = await http(ctx, 'GET', '/dsh-agfs')
@@ -427,6 +427,7 @@ describe('real Loader composition', () => {
     expect(String(index.headers['referrer-policy'])).toBe('no-referrer')
     const jsx = await http(ctx, 'GET', '/dsh-agfs/app.jsx')
     expect(String(jsx.headers['x-content-type-options'])).toBe('nosniff')
+    expect(String(jsx.headers['cache-control'])).toBe('no-cache')
     const list = await http(ctx, 'GET', '/dsh-agfs/api/file_browser/list?path=')
     expect(String(list.headers['x-content-type-options'])).toBe('nosniff')
     expect(String(list.headers['x-frame-options'])).toBe('DENY')
