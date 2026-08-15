@@ -208,7 +208,8 @@ function Toolbar({ crumbs, onNavigate, searchText, onSearch, viewMode, onViewMod
       title: sizeMode === "view" ? "视图大小(点击:整个视图)" : sizeMode === "whole" ? "整个视图(点击:全屏)" : "全屏(点击:视图大小)",
       onClick: onCycleSize
     },
-    /* @__PURE__ */ React.createElement("i", { className: `fa-solid ${sizeMode === "view" ? "fa-window-restore" : sizeMode === "whole" ? "fa-expand-arrows-alt" : "fa-compress"}` })
+    /* @__PURE__ */ React.createElement("i", { className: `fa-solid ${sizeMode === "view" ? "fa-window-restore" : sizeMode === "whole" ? "fa-expand-arrows-alt" : "fa-compress"}` }),
+    /* @__PURE__ */ React.createElement("span", { className: "size-mode-label" }, sizeMode === "view" ? "视图大小" : sizeMode === "whole" ? "整个视图" : "全屏")
   )));
 }
 const SORT_DEFS = [
@@ -512,7 +513,7 @@ function App() {
   const [rename, setRename] = useState(null);
   const [highlightPath, setHighlightPath] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [sizeMode, setSizeMode] = useState("whole");
+  const [sizeMode, setSizeMode] = useState("view");
   const searchTimer = useRef(null);
   const menuRef = useRef(null);
   const renameRef = useRef(null);

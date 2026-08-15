@@ -20,7 +20,7 @@ English | [中文](README.zh.md)
 
 - **面包屑导航** — clickable breadcrumbs navigate every level of the current path back to the root.
 - **视图切换** — list and card (grid) views, one click apart.
-- **三种显示尺寸** — a toolbar button cycles through 视图大小 (windowed panel), 整个视图 (fills the viewport), and 全屏 (browser fullscreen).
+- **三种显示尺寸** — a toolbar button (showing the current mode) cycles 视图大小 (windowed panel, the default) → 整个视图 (fills the viewport) → 全屏 (browser fullscreen).
 - **侧边栏** — project directory, quick access (Desktop/Downloads/Documents…), custom roots, and drives.
 - **搜索** — toolbar search with optional recursive mode (200-hit cap).
 - **本地打开** — in local mode, a floating button in the bottom-right opens the system file manager at the current directory.

@@ -310,6 +310,7 @@ function Toolbar({ crumbs, onNavigate, searchText, onSearch, viewMode, onViewMod
           onClick={onCycleSize}
         >
           <i className={`fa-solid ${sizeMode === 'view' ? 'fa-window-restore' : sizeMode === 'whole' ? 'fa-expand-arrows-alt' : 'fa-compress'}`} />
+          <span className="size-mode-label">{sizeMode === 'view' ? '视图大小' : sizeMode === 'whole' ? '整个视图' : '全屏'}</span>
         </button>
       </div>
     </div>
@@ -735,7 +736,7 @@ function App() {
   const [rename, setRename] = useState(null);
   const [highlightPath, setHighlightPath] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(false); // 窄屏侧边栏抽屉
-  const [sizeMode, setSizeMode] = useState('whole'); // view(视图大小) | whole(整个视图) | fullscreen(全屏)
+  const [sizeMode, setSizeMode] = useState('view'); // view(视图大小) | whole(整个视图) | fullscreen(全屏)
 
   const searchTimer = useRef(null);
   const menuRef = useRef(null);

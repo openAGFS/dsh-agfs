@@ -405,6 +405,18 @@
             transition: all 0.2s;
         }
 
+        /* 尺寸模式按钮:图标 + 当前档位文字 */
+        .size-mode-btn {
+            width: auto;
+            padding: 0 8px;
+            gap: 5px;
+        }
+        .size-mode-btn .size-mode-label {
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
         .view-btn:hover {
             background: rgba(67, 97, 238, 0.1);
             color: #4361ee;
