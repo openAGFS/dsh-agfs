@@ -245,7 +245,7 @@ function Sidebar({ remoteMode, curPath, project, quick, drives, roots, onHome, o
 
 /* ============================ 工具栏 ============================ */
 
-function Toolbar({ crumbs, onNavigate, searchText, onSearch, viewMode, onViewMode, onNewFolder, onToggleSidebar, sizeMode, onCycleSize, theme, onCycleTheme }) {
+function Toolbar({ crumbs, onNavigate, searchText, onSearch, viewMode, onViewMode, onNewFolder, onToggleSidebar, sizeMode, onCycleSize, theme, onCycleTheme, canGoBack, canGoForward, onGoBack, onGoForward, onGoUp }) {
   const curStyle = { background: 'white', color: '#0b1e33', fontWeight: 600 };
   const separator = (crumbs || '').includes('\\') ? '\\' : '/';
 
@@ -279,6 +279,17 @@ function Toolbar({ crumbs, onNavigate, searchText, onSearch, viewMode, onViewMod
 
   return (
     <div className="toolbar">
+      <div className="nav-controls">
+        <button className="nav-ctrl-btn" disabled={!canGoBack} title="后退" onClick={onGoBack}>
+          <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M10 3L5 8l5 5V3z" /></svg>
+        </button>
+        <button className="nav-ctrl-btn" disabled={!canGoForward} title="前进" onClick={onGoForward}>
+          <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M6 3l5 5-5 5V3z" /></svg>
+        </button>
+        <button className="nav-ctrl-btn" title="向上" onClick={onGoUp}>
+          <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 3l5 5h-3v5H6V8H3l5-5z" /></svg>
+        </button>
+      </div>
       <div className="breadcrumb">{breadcrumbNodes}</div>
       <div className="toolbar-right">
         <button className="view-btn sidebar-toggle-btn" title="菜单" onClick={onToggleSidebar}>
@@ -814,9 +825,14 @@ function App() {
   const renameRef = useRef(null);         // 当前重命名对象(渲染体内同步,供 blur 判断是否过期)
   const renamingBusyRef = useRef(false);  // 重命名请求进行中标记
   const loadDirRef = useRef(null);
+  // 导航历史(后退/前进):栈 + 当前索引,refs 供 loadDirectory 同步读写
+  const navStackRef = useRef(['']);
+  const navIndexRef = useRef(0);
+  const [navIndex, setNavIndex] = useState(0);
 
-  /* ---- 加载目录(更新 URL + 全局 filepath + 拉取列表) ---- */
-  const loadDirectory = useCallback(async (path) => {
+  /* ---- 加载目录(更新 URL + 全局 filepath + 拉取列表) ----
+     push=false 用于后退/前进回放,不再追加导航历史 */
+  const loadDirectory = useCallback(async (path, push = true) => {
     setLoading(true);
     setLoadError('');
     setSearchLoading(false);
@@ -831,6 +847,13 @@ function App() {
     currentPath = path;
     setCurPath(path);
     setSidebarOpen(false); // 窄屏下选择目标后收起抽屉
+    if (push) {
+      const stack = navStackRef.current;
+      const next = [...stack.slice(0, navIndexRef.current + 1), path];
+      navStackRef.current = next;
+      navIndexRef.current = next.length - 1;
+      setNavIndex(navIndexRef.current);
+    }
     try {
       const result = await apiGet('list', { path });
       setData(result);
@@ -1118,6 +1141,26 @@ function App() {
     });
   };
 
+  /* ---- 导航:后退 / 前进 / 向上(文件管理器命令) ---- */
+  const goBack = () => {
+    if (navIndexRef.current <= 0) return;
+    navIndexRef.current -= 1;
+    setNavIndex(navIndexRef.current);
+    loadDirectory(navStackRef.current[navIndexRef.current], false);
+  };
+  const goForward = () => {
+    if (navIndexRef.current >= navStackRef.current.length - 1) return;
+    navIndexRef.current += 1;
+    setNavIndex(navIndexRef.current);
+    loadDirectory(navStackRef.current[navIndexRef.current], false);
+  };
+  const goUp = () => {
+    const sep = (currentPath || '').includes('\\') ? '\\' : '/';
+    const parts = currentPath.split(sep).filter(Boolean);
+    parts.pop();
+    loadDirectory(parts.join(sep));
+  };
+
   useEffect(() => {
     const onFs = () => {
       if (document.fullscreenElement) {
@@ -1206,6 +1249,20 @@ function App() {
       {/* 主界面(浮层必须在 .browser 之外:.browser 带 backdrop-filter + overflow:hidden,
           会让 position:fixed 后代相对其盒子定位并裁剪,导致右键菜单位置偏移/被裁剪) */}
       <div className={`browser${sidebarOpen ? ' sidebar-open' : ''}${sizeMode === 'view' ? ' size-view' : ' size-whole'}${theme === 'win10' ? ' theme-win10' : ''}`}>
+        {theme === 'win10' && (
+          <div className="win10-titlebar">
+            <div className="win10-titlebar-title">
+              <svg className="win10-titlebar-logo"><use href="#icon-folder-open" /></svg>
+              <span>文件浏览器</span>
+            </div>
+            <div className="win10-titlebar-controls">
+              <button className="win10-tb-btn win10-tb-min" title="最小化"><svg width="10" height="10" viewBox="0 0 10 10"><path d="M0 5h10v1H0z" fill="currentColor" /></svg></button>
+              <button className="win10-tb-btn win10-tb-max" title="最大化"><svg width="10" height="10" viewBox="0 0 10 10"><path d="M0 0h10v10H0z" fill="none" stroke="currentColor" strokeWidth="1" /></svg></button>
+              <button className="win10-tb-btn win10-tb-close" title="关闭"><svg width="10" height="10" viewBox="0 0 10 10"><path d="M0 0l10 10M10 0L0 10" stroke="currentColor" strokeWidth="1.2" /></svg></button>
+            </div>
+          </div>
+        )}
+        <div className="browser-body">
         <Sidebar remoteMode={remoteMode} curPath={curPath} project={sidebarData.project} quick={sidebarData.quick} drives={sidebarData.drives} roots={sidebarData.roots} onHome={() => loadDirectory('')} onNavigate={loadDirectory} />
         <div className="sidebar-backdrop" onClick={() => setSidebarOpen(false)} />
         <div className="main">
@@ -1222,6 +1279,11 @@ function App() {
             onCycleSize={toggleSizeMode}
             theme={theme}
             onCycleTheme={toggleTheme}
+            canGoBack={navIndex > 0}
+            canGoForward={navIndex < navStackRef.current.length - 1}
+            onGoBack={goBack}
+            onGoForward={goForward}
+            onGoUp={goUp}
           />
           <ListHeader sort={sort} onSort={handleSort} />
           <FileList
@@ -1243,6 +1305,13 @@ function App() {
             onPreview={previewOpen}
             onDownload={doDownload}
           />
+          {theme === 'win10' && (
+            <div className="win10-statusbar">
+              <span>{items.length} 个项目</span>
+              <span className="win10-status-right">{remoteMode ? '远程模式' : '本机模式'}</span>
+            </div>
+          )}
+        </div>
         </div>
       </div>
       <ContextMenu

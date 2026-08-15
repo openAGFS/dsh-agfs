@@ -167,7 +167,7 @@ function Sidebar({ remoteMode, curPath, project, quick, drives, roots, onHome, o
   const isActive = (target) => pathIsInside(curPath, target);
   return /* @__PURE__ */ React.createElement("div", { className: "sidebar" }, /* @__PURE__ */ React.createElement("div", { className: "sidebar-header" }, /* @__PURE__ */ React.createElement("div", { className: "logo-icon" }, /* @__PURE__ */ React.createElement("svg", null, /* @__PURE__ */ React.createElement("use", { href: "#icon-folder-open" }))), /* @__PURE__ */ React.createElement("span", { className: "logo-text" }, "文件浏览器")), /* @__PURE__ */ React.createElement("div", { style: { flex: 1, minHeight: 0, overflowY: "auto" } }, /* @__PURE__ */ React.createElement("div", { className: "nav-section" }, /* @__PURE__ */ React.createElement("div", { className: "nav-label" }, "快速访问"), project && /* @__PURE__ */ React.createElement("button", { className: `nav-item${isActive(project) ? " active" : ""}`, title: project, onClick: () => onNavigate(project) }, /* @__PURE__ */ React.createElement("svg", null, /* @__PURE__ */ React.createElement("use", { href: "#icon-project" })), " 项目目录"), quick.map((q) => /* @__PURE__ */ React.createElement("button", { key: q.path, className: `nav-item${isActive(q.path) ? " active" : ""}`, title: q.path, onClick: () => onNavigate(q.path) }, /* @__PURE__ */ React.createElement("svg", null, /* @__PURE__ */ React.createElement("use", { href: "#" + iconForQuick(q.name) })), q.name))), roots && roots.length > 0 && /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("div", { className: "ai-divider", style: { margin: "6px 8px" } }), /* @__PURE__ */ React.createElement("div", { className: "nav-section" }, /* @__PURE__ */ React.createElement("div", { className: "nav-label" }, "自定义根"), roots.map((r) => /* @__PURE__ */ React.createElement("button", { key: r.path, className: `nav-item${isActive(r.path) ? " active" : ""}`, title: r.path, onClick: () => onNavigate(r.path) }, /* @__PURE__ */ React.createElement("svg", null, /* @__PURE__ */ React.createElement("use", { href: "#icon-folder" })), /* @__PURE__ */ React.createElement("span", null, r.name))))), /* @__PURE__ */ React.createElement("div", { className: "ai-divider", style: { margin: "6px 8px" } }), /* @__PURE__ */ React.createElement("div", { className: "nav-section" }, /* @__PURE__ */ React.createElement("div", { className: "nav-label" }, "磁盘驱动器"), /* @__PURE__ */ React.createElement("button", { className: `nav-item${isActive("") ? " active" : ""}`, onClick: onHome }, /* @__PURE__ */ React.createElement("svg", null, /* @__PURE__ */ React.createElement("use", { href: "#icon-home" })), " 此电脑"), drives.map((d) => /* @__PURE__ */ React.createElement("button", { key: d.path, className: `nav-item${isActive(d.path) ? " active" : ""}`, title: d.path, onClick: () => onNavigate(d.path) }, /* @__PURE__ */ React.createElement("svg", null, /* @__PURE__ */ React.createElement("use", { href: "#icon-drive" })), /* @__PURE__ */ React.createElement("span", null, d.name))))), /* @__PURE__ */ React.createElement("div", { className: `mode-indicator${remoteMode ? " remote" : ""}` }, /* @__PURE__ */ React.createElement("div", { className: "mode-dot" }), /* @__PURE__ */ React.createElement("span", { className: "mode-text" }, remoteMode ? "远程模式" : "本机模式"), /* @__PURE__ */ React.createElement("span", { className: "mode-badge" }, remoteMode ? "远程" : "本地")));
 }
-function Toolbar({ crumbs, onNavigate, searchText, onSearch, viewMode, onViewMode, onNewFolder, onToggleSidebar, sizeMode, onCycleSize, theme, onCycleTheme }) {
+function Toolbar({ crumbs, onNavigate, searchText, onSearch, viewMode, onViewMode, onNewFolder, onToggleSidebar, sizeMode, onCycleSize, theme, onCycleTheme, canGoBack, canGoForward, onGoBack, onGoForward, onGoUp }) {
   const curStyle = { background: "white", color: "#0b1e33", fontWeight: 600 };
   const separator = (crumbs || "").includes("\\") ? "\\" : "/";
   let breadcrumbNodes;
@@ -193,7 +193,7 @@ function Toolbar({ crumbs, onNavigate, searchText, onSearch, viewMode, onViewMod
     });
     breadcrumbNodes = nodes;
   }
-  return /* @__PURE__ */ React.createElement("div", { className: "toolbar" }, /* @__PURE__ */ React.createElement("div", { className: "breadcrumb" }, breadcrumbNodes), /* @__PURE__ */ React.createElement("div", { className: "toolbar-right" }, /* @__PURE__ */ React.createElement("button", { className: "view-btn sidebar-toggle-btn", title: "菜单", onClick: onToggleSidebar }, /* @__PURE__ */ React.createElement("i", { className: "fa-solid fa-bars" })), /* @__PURE__ */ React.createElement("div", { className: "search-box" }, /* @__PURE__ */ React.createElement("i", { className: "fa-solid fa-magnifying-glass" }), /* @__PURE__ */ React.createElement(
+  return /* @__PURE__ */ React.createElement("div", { className: "toolbar" }, /* @__PURE__ */ React.createElement("div", { className: "nav-controls" }, /* @__PURE__ */ React.createElement("button", { className: "nav-ctrl-btn", disabled: !canGoBack, title: "后退", onClick: onGoBack }, /* @__PURE__ */ React.createElement("svg", { width: "16", height: "16", fill: "currentColor", viewBox: "0 0 16 16" }, /* @__PURE__ */ React.createElement("path", { d: "M10 3L5 8l5 5V3z" }))), /* @__PURE__ */ React.createElement("button", { className: "nav-ctrl-btn", disabled: !canGoForward, title: "前进", onClick: onGoForward }, /* @__PURE__ */ React.createElement("svg", { width: "16", height: "16", fill: "currentColor", viewBox: "0 0 16 16" }, /* @__PURE__ */ React.createElement("path", { d: "M6 3l5 5-5 5V3z" }))), /* @__PURE__ */ React.createElement("button", { className: "nav-ctrl-btn", title: "向上", onClick: onGoUp }, /* @__PURE__ */ React.createElement("svg", { width: "16", height: "16", fill: "currentColor", viewBox: "0 0 16 16" }, /* @__PURE__ */ React.createElement("path", { d: "M8 3l5 5h-3v5H6V8H3l5-5z" })))), /* @__PURE__ */ React.createElement("div", { className: "breadcrumb" }, breadcrumbNodes), /* @__PURE__ */ React.createElement("div", { className: "toolbar-right" }, /* @__PURE__ */ React.createElement("button", { className: "view-btn sidebar-toggle-btn", title: "菜单", onClick: onToggleSidebar }, /* @__PURE__ */ React.createElement("i", { className: "fa-solid fa-bars" })), /* @__PURE__ */ React.createElement("div", { className: "search-box" }, /* @__PURE__ */ React.createElement("i", { className: "fa-solid fa-magnifying-glass" }), /* @__PURE__ */ React.createElement(
     "input",
     {
       type: "text",
@@ -570,7 +570,10 @@ function App() {
   const renameRef = useRef(null);
   const renamingBusyRef = useRef(false);
   const loadDirRef = useRef(null);
-  const loadDirectory = useCallback(async (path) => {
+  const navStackRef = useRef([""]);
+  const navIndexRef = useRef(0);
+  const [navIndex, setNavIndex] = useState(0);
+  const loadDirectory = useCallback(async (path, push = true) => {
     setLoading(true);
     setLoadError("");
     setSearchLoading(false);
@@ -583,6 +586,13 @@ function App() {
     currentPath = path;
     setCurPath(path);
     setSidebarOpen(false);
+    if (push) {
+      const stack = navStackRef.current;
+      const next = [...stack.slice(0, navIndexRef.current + 1), path];
+      navStackRef.current = next;
+      navIndexRef.current = next.length - 1;
+      setNavIndex(navIndexRef.current);
+    }
     try {
       const result = await apiGet("list", { path });
       setData(result);
@@ -842,6 +852,24 @@ function App() {
       return next;
     });
   };
+  const goBack = () => {
+    if (navIndexRef.current <= 0) return;
+    navIndexRef.current -= 1;
+    setNavIndex(navIndexRef.current);
+    loadDirectory(navStackRef.current[navIndexRef.current], false);
+  };
+  const goForward = () => {
+    if (navIndexRef.current >= navStackRef.current.length - 1) return;
+    navIndexRef.current += 1;
+    setNavIndex(navIndexRef.current);
+    loadDirectory(navStackRef.current[navIndexRef.current], false);
+  };
+  const goUp = () => {
+    const sep = (currentPath || "").includes("\\") ? "\\" : "/";
+    const parts = currentPath.split(sep).filter(Boolean);
+    parts.pop();
+    loadDirectory(parts.join(sep));
+  };
   useEffect(() => {
     const onFs = () => {
       if (document.fullscreenElement) {
@@ -912,7 +940,7 @@ function App() {
     })();
     return () => clearTimeout(searchTimer.current);
   }, []);
-  return /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("div", { className: `browser${sidebarOpen ? " sidebar-open" : ""}${sizeMode === "view" ? " size-view" : " size-whole"}${theme === "win10" ? " theme-win10" : ""}` }, /* @__PURE__ */ React.createElement(Sidebar, { remoteMode, curPath, project: sidebarData.project, quick: sidebarData.quick, drives: sidebarData.drives, roots: sidebarData.roots, onHome: () => loadDirectory(""), onNavigate: loadDirectory }), /* @__PURE__ */ React.createElement("div", { className: "sidebar-backdrop", onClick: () => setSidebarOpen(false) }), /* @__PURE__ */ React.createElement("div", { className: "main" }, /* @__PURE__ */ React.createElement(
+  return /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("div", { className: `browser${sidebarOpen ? " sidebar-open" : ""}${sizeMode === "view" ? " size-view" : " size-whole"}${theme === "win10" ? " theme-win10" : ""}` }, theme === "win10" && /* @__PURE__ */ React.createElement("div", { className: "win10-titlebar" }, /* @__PURE__ */ React.createElement("div", { className: "win10-titlebar-title" }, /* @__PURE__ */ React.createElement("svg", { className: "win10-titlebar-logo" }, /* @__PURE__ */ React.createElement("use", { href: "#icon-folder-open" })), /* @__PURE__ */ React.createElement("span", null, "文件浏览器")), /* @__PURE__ */ React.createElement("div", { className: "win10-titlebar-controls" }, /* @__PURE__ */ React.createElement("button", { className: "win10-tb-btn win10-tb-min", title: "最小化" }, /* @__PURE__ */ React.createElement("svg", { width: "10", height: "10", viewBox: "0 0 10 10" }, /* @__PURE__ */ React.createElement("path", { d: "M0 5h10v1H0z", fill: "currentColor" }))), /* @__PURE__ */ React.createElement("button", { className: "win10-tb-btn win10-tb-max", title: "最大化" }, /* @__PURE__ */ React.createElement("svg", { width: "10", height: "10", viewBox: "0 0 10 10" }, /* @__PURE__ */ React.createElement("path", { d: "M0 0h10v10H0z", fill: "none", stroke: "currentColor", strokeWidth: "1" }))), /* @__PURE__ */ React.createElement("button", { className: "win10-tb-btn win10-tb-close", title: "关闭" }, /* @__PURE__ */ React.createElement("svg", { width: "10", height: "10", viewBox: "0 0 10 10" }, /* @__PURE__ */ React.createElement("path", { d: "M0 0l10 10M10 0L0 10", stroke: "currentColor", strokeWidth: "1.2" }))))), /* @__PURE__ */ React.createElement("div", { className: "browser-body" }, /* @__PURE__ */ React.createElement(Sidebar, { remoteMode, curPath, project: sidebarData.project, quick: sidebarData.quick, drives: sidebarData.drives, roots: sidebarData.roots, onHome: () => loadDirectory(""), onNavigate: loadDirectory }), /* @__PURE__ */ React.createElement("div", { className: "sidebar-backdrop", onClick: () => setSidebarOpen(false) }), /* @__PURE__ */ React.createElement("div", { className: "main" }, /* @__PURE__ */ React.createElement(
     Toolbar,
     {
       crumbs: data ? data.current_path : "",
@@ -926,7 +954,12 @@ function App() {
       sizeMode,
       onCycleSize: toggleSizeMode,
       theme,
-      onCycleTheme: toggleTheme
+      onCycleTheme: toggleTheme,
+      canGoBack: navIndex > 0,
+      canGoForward: navIndex < navStackRef.current.length - 1,
+      onGoBack: goBack,
+      onGoForward: goForward,
+      onGoUp: goUp
     }
   ), /* @__PURE__ */ React.createElement(ListHeader, { sort, onSort: handleSort }), /* @__PURE__ */ React.createElement(
     FileList,
@@ -949,7 +982,7 @@ function App() {
       onPreview: previewOpen,
       onDownload: doDownload
     }
-  ))), /* @__PURE__ */ React.createElement(
+  ), theme === "win10" && /* @__PURE__ */ React.createElement("div", { className: "win10-statusbar" }, /* @__PURE__ */ React.createElement("span", null, items.length, " 个项目"), /* @__PURE__ */ React.createElement("span", { className: "win10-status-right" }, remoteMode ? "远程模式" : "本机模式"))))), /* @__PURE__ */ React.createElement(
     ContextMenu,
     {
       menu: ctxMenu,

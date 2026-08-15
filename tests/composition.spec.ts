@@ -196,7 +196,7 @@ describe('real Loader composition', () => {
     // Boot runs on vendored React and the precompiled app; no CDN script tags.
     expect(index.body).toContain('vendor/react.production.min.js')
     expect(index.body).toContain('vendor/react-dom.production.min.js')
-    expect(index.body).toContain('app.js?v=2')
+    expect(index.body).toContain('app.js?v=3')
     expect(index.body).not.toContain('unpkg.com')
     expect(index.body).not.toContain('babel')
     const bare = await http(ctx, 'GET', '/dsh-agfs')
