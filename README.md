@@ -87,6 +87,7 @@ then `dsh web --patch ./overlay.yml`. Plugin code changes need a dsh restart; fr
 | `strictRoot` | `false` | When true, browsing is locked inside `fileRoot`: absolute paths are rejected and symlink/junction escapes fail with a 400 envelope. |
 | `roots` | `{}` | Named browse roots shown in the sidebar as `name -> path`; entries that do not resolve to an existing directory are dropped. |
 | `openOnCommand` | `true` | Whether `/dsh-agfs` opens the system default browser. |
+| `debug` | `false` | When true, API calls and system-open results are logged to the dsh process stderr with a `[dsh-agfs:debug]` prefix. |
 
 Config lives in the profile's user patch layer (`$DSH_HOME/profiles/<name>/cordis.patch.yml`):
 

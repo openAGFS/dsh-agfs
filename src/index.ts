@@ -43,6 +43,8 @@ export interface Config {
   roots: Record<string, string>
   /** Whether `/dsh-agfs` opens the file browser in the system default browser. */
   openOnCommand: boolean
+  /** Debug logging: API calls and system-open results to stderr. */
+  debug: boolean
 }
 
 export const Config: z<Config> = z.object({
@@ -54,6 +56,7 @@ export const Config: z<Config> = z.object({
   strictRoot: z.boolean().default(false),
   roots: z.dict(z.string()).default({}),
   openOnCommand: z.boolean().default(true),
+  debug: z.boolean().default(false),
 })
 
 /** Reject an invalid route prefix before any registration happens. */
@@ -103,6 +106,7 @@ export function apply(ctx: Context, config: Config): void {
     strictRoot: config.strictRoot,
     roots: config.roots,
     openOnCommand: config.openOnCommand,
+    debug: config.debug,
   }
 
   const commandHandler = async (invocation: CommandInvocation): Promise<CommandResult> => {
@@ -155,6 +159,9 @@ export function apply(ctx: Context, config: Config): void {
       /* v8 ignore next -- node:http always sets method on server requests */
       const method = req.method ?? 'GET'
       const outcome = await dispatchApi(method, endpoint, query, body, resolved, getClientIp(req.headers, socketAddress), socketAddress)
+      if (resolved.debug) {
+        console.error(`[dsh-agfs:debug] ${method} ${endpoint} status=${outcome.kind === 'stream' ? 200 : outcome.status}`)
+      }
       writeOutcome(res, outcome)
       return
     }

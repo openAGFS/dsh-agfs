@@ -426,9 +426,12 @@ async function apiOpen(query: Query, config: AgfsConfig): Promise<ApiOutcome> {
   if (!existsSync(targetPath)) return { kind: 'error', status: 404, error: '文件不存在' }
   if (!statSync(targetPath).isFile()) return { kind: 'error', status: 400, error: '不是文件' }
   try {
+    if (config.debug) console.error(`[dsh-agfs:debug] open target=${targetPath}`)
     await openInSystem(targetPath)
+    if (config.debug) console.error(`[dsh-agfs:debug] open spawned ok`)
     return { kind: 'json', status: 200, data: null, message: '已打开文件' }
   } catch (error: unknown) {
+    if (config.debug) console.error(`[dsh-agfs:debug] open failed: ${String(error instanceof Error ? error.message : error)}`)
     return { kind: 'error', status: 500, error: `打开文件失败: ${String(error instanceof Error ? error.message : error)}` }
   }
 }
@@ -442,9 +445,12 @@ async function apiOpenLocation(query: Query, config: AgfsConfig): Promise<ApiOut
   const targetPath = getSafePath(root, relativePath, config.strictRoot)
   if (!existsSync(targetPath)) return { kind: 'error', status: 404, error: '路径不存在' }
   try {
+    if (config.debug) console.error(`[dsh-agfs:debug] open_location target=${targetPath}`)
     await openLocationInExplorer(targetPath)
+    if (config.debug) console.error(`[dsh-agfs:debug] open_location spawned ok`)
     return { kind: 'json', status: 200, data: null, message: '已打开位置' }
   } catch (error: unknown) {
+    if (config.debug) console.error(`[dsh-agfs:debug] open_location failed: ${String(error instanceof Error ? error.message : error)}`)
     return { kind: 'error', status: 500, error: `打开位置失败: ${String(error instanceof Error ? error.message : error)}` }
   }
 }

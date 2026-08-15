@@ -22,6 +22,8 @@ export interface AgfsConfig {
   readonly roots: Readonly<Record<string, string>>
   /** Whether `/dsh-agfs` opens the file browser in the system default browser. */
   readonly openOnCommand: boolean
+  /** Debug logging: when true, API calls and system-open results are logged to stderr with a `[dsh-agfs:debug]` prefix. */
+  readonly debug: boolean
 }
 
 /** One validated query-string key/value pair set. */

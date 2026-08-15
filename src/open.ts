@@ -43,7 +43,10 @@ export function explorerCommand(platformName: string, target: string, isFile: bo
 /** Spawn one command with stdio ignored; resolves on spawn, rejects on spawn error. */
 function run(command: SpawnCommand): Promise<void> {
   return new Promise((resolvePromise, reject) => {
-    const child = spawn(command.command, [...command.args], { stdio: 'ignore', windowsHide: true })
+    // windowsHide (CREATE_NO_WINDOW) must stay OFF: with it the spawn still
+    // succeeds, but windows launched by the child (browser, Explorer, default
+    // app) never appear on the interactive desktop.
+    const child = spawn(command.command, [...command.args], { stdio: 'ignore', windowsHide: false })
     child.once('error', reject)
     child.once('spawn', () => { resolvePromise() })
   })

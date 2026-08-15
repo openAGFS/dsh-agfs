@@ -87,6 +87,7 @@ dsh plugin --profile web add @open-agfs/dsh-agfs@latest
 | `strictRoot` | `false` | 为 true 时浏览锁定在 `fileRoot` 内：拒绝绝对路径，符号链接/连接点逃逸返回 400 |
 | `roots` | `{}` | 侧边栏自定义根，`name -> path`；解析不到的条目自动丢弃，其余按名排序 |
 | `openOnCommand` | `true` | `/dsh-agfs` 是否自动打开系统默认浏览器 |
+| `debug` | `false` | 为 true 时把 API 调用与系统打开结果以 `[dsh-agfs:debug]` 前缀写入 dsh 进程 stderr |
 
 配置写在 profile 的用户补丁层（`$DSH_HOME/profiles/<name>/cordis.patch.yml`），例如：
 

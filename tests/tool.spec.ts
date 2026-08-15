@@ -25,6 +25,7 @@ function config(overrides: Partial<AgfsConfig> = {}): AgfsConfig {
     strictRoot: false,
     roots: {},
     openOnCommand: false,
+    debug: false,
     ...overrides,
   }
 }

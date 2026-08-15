@@ -307,6 +307,12 @@ describe('real Loader composition', () => {
     expect(openControl.openInBrowser).toHaveBeenCalledTimes(1)
   })
 
+  it('accepts the debug config flag and still serves the API', { timeout: 60_000 }, async () => {
+    const { ctx } = await loadComposition('    debug: true')
+    const listed = await http(ctx, 'GET', '/dsh-agfs/api/file_browser/list?path=')
+    expect((JSON.parse(listed.body) as { success: boolean }).success).toBe(true)
+  })
+
   it('answers every read-only endpoint over HTTP with the contract envelope', { timeout: 60_000 }, async () => {
     const { ctx } = await loadComposition('')
     const browse = join(root ?? '', 'browse')
