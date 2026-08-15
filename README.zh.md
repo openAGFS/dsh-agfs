@@ -133,6 +133,16 @@ git push --follow-tags
 
 推 `v*` tag 触发 GitHub Actions（`.github/workflows/publish.yml`）自动发布到 npm。仓库需配置 `NPM_TOKEN` secret。本包把已发布的 `@deepseek-ai/dsh-*` 工具链包声明为 peer 依赖，发布安装可从 npm 解析。
 
+## Star History
+
+<a href="https://star-history.com/#openAGFS/dsh-agfs&Date">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=openAGFS/dsh-agfs&type=Date&theme=dark" />
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=openAGFS/dsh-agfs&type=Date&theme=light" />
+    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=openAGFS/dsh-agfs&type=Date&theme=light" />
+  </picture>
+</a>
+
 ## 链接
 
 - npm：https://www.npmjs.com/package/@open-agfs/dsh-agfs

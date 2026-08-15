@@ -133,6 +133,16 @@ git push --follow-tags
 
 Pushing a `v*` tag triggers GitHub Actions (`.github/workflows/publish.yml`) to publish to npm. The repository needs an `NPM_TOKEN` secret. The package declares the published `@deepseek-ai/dsh-*` harness packages as peers, so a published install resolves them from npm.
 
+## Star History
+
+<a href="https://star-history.com/#openAGFS/dsh-agfs&Date">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=openAGFS/dsh-agfs&type=Date&theme=dark" />
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=openAGFS/dsh-agfs&type=Date&theme=light" />
+    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=openAGFS/dsh-agfs&type=Date&theme=light" />
+  </picture>
+</a>
+
 ## Links
 
 - npm: https://www.npmjs.com/package/@open-agfs/dsh-agfs
