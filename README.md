@@ -10,13 +10,21 @@ English | [中文](README.zh.md)
 
 ## Features
 
-| File browsing | Folders and text preview | Sidebar |
+| 面包屑导航 Breadcrumbs | 视图切换 View switch | 侧边栏 Sidebar |
 | --- | --- | --- |
-| ![File browsing](docs/screenshots/01-main.png) | ![docs folder](docs/screenshots/02-docs.png) | ![host folder](docs/screenshots/03-host.png) |
+| ![面包屑导航](docs/screenshots/02-breadcrumb.png) | ![视图切换](docs/screenshots/03-grid.png) | ![侧边栏](docs/screenshots/04-sidebar.png) |
 
+| 搜索 Search | 本地打开 Local open |
+| --- | --- |
+| ![搜索](docs/screenshots/05-search.png) | ![本地打开](docs/screenshots/06-local-open.png) |
+
+- **面包屑导航** — clickable breadcrumbs navigate every level of the current path back to the root.
+- **视图切换** — list and card (grid) views, one click apart.
+- **侧边栏** — project directory, quick access (Desktop/Downloads/Documents…), custom roots, and drives.
+- **搜索** — toolbar search with optional recursive mode (200-hit cap).
+- **本地打开** — in local mode, a floating button in the bottom-right opens the system file manager at the current directory.
 - **Full file browser** — list/search, text preview (markdown, code, logs), image preview, and create/rename/copy/delete folders.
 - **`/dsh-agfs` command** — opens the file browser in the system default browser and **automatically navigates to the current session's workspace directory** (session cwd); switch workspaces and it follows.
-- **Local-open button** — in local mode, a floating button in the bottom-right opens the system file manager at the current directory.
 - **`browse_files` model tool** — the model can list or recursively search the browser root directly.
 - **Path safety** — browsing confined to the root, `strictRoot` real-path checks, symlink/junction escape interception (clean 400 envelope), `readOnly` mode, `remoteMode`.
 - **Offline frontend** — React/ReactDOM ship in the package; boots without a CDN or Babel.
