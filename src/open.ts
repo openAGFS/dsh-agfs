@@ -32,7 +32,9 @@ export function openCommand(platformName: string, target: string): SpawnCommand 
 export function explorerCommand(platformName: string, target: string, isFile: boolean): SpawnCommand {
   if (platformName === 'win32') {
     if (isFile) return { command: 'explorer', args: ['/select,', target] }
-    return { command: 'cmd', args: ['/c', 'start', '', target] }
+    // Direct explorer.exe spawn: `cmd /c start` exits 0 yet silently fails to
+    // open a window when spawned from a hidden-console process.
+    return { command: 'explorer', args: [target] }
   }
   if (platformName === 'darwin') return { command: 'open', args: ['-R', target] }
   return { command: 'xdg-open', args: [isFile ? target.slice(0, target.lastIndexOf('/')) : target] }

@@ -52,7 +52,7 @@ describe('command builders', () => {
 
   it('builds file-manager reveal commands per platform and target kind', () => {
     expect(explorerCommand('win32', 'C:\\f.txt', true)).toEqual({ command: 'explorer', args: ['/select,', 'C:\\f.txt'] })
-    expect(explorerCommand('win32', 'C:\\dir', false)).toEqual({ command: 'cmd', args: ['/c', 'start', '', 'C:\\dir'] })
+    expect(explorerCommand('win32', 'C:\\dir', false)).toEqual({ command: 'explorer', args: ['C:\\dir'] })
     expect(explorerCommand('darwin', '/f.txt', true)).toEqual({ command: 'open', args: ['-R', '/f.txt'] })
     expect(explorerCommand('linux', '/a/b/f.txt', true)).toEqual({ command: 'xdg-open', args: ['/a/b'] })
     expect(explorerCommand('linux', '/a/b', false)).toEqual({ command: 'xdg-open', args: ['/a/b'] })
