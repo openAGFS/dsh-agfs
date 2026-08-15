@@ -78,4 +78,41 @@ describe('runAnalysis', () => {
 
     expect(createAgent).toHaveBeenCalledWith(expect.not.objectContaining({ agentOptions: expect.anything() }))
   })
+
+  it('resolves the default agent preset and mounts it in the create setup, like a manual session', async () => {
+    const ctx = new Context()
+    ctx.provide('workspaceRegistry', { create: async () => ({ attachSession: async () => undefined }) } as never)
+    const followup = vi.fn()
+    const createAgent = vi.fn(async (options: { setup?: (agentCtx: Context) => Promise<void> }) => {
+      // The setup must mount the preset into the agent's scoped context.
+      await options.setup?.(ctx)
+      return { agent: { followup }, dispose: async () => undefined }
+    })
+    ctx.provide('agents', { create: createAgent } as never)
+    const mount = vi.fn(async () => ({ id: 'standard' }))
+    ctx.provide('agentPresets', {
+      resolve: async () => ({ id: 'standard' }),
+      mount,
+    } as never)
+
+    await runAnalysis(ctx, 'C:\\proj', 'x')
+
+    expect(createAgent).toHaveBeenCalledWith(expect.objectContaining({
+      meta: { cwd: 'C:\\proj', agentPreset: 'standard' },
+    }))
+    expect(mount).toHaveBeenCalledWith(ctx, 'standard')
+  })
+
+  it('creates the agent without a preset when the roster is not mounted', async () => {
+    const ctx = new Context()
+    ctx.provide('workspaceRegistry', { create: async () => ({ attachSession: async () => undefined }) } as never)
+    const followup = vi.fn()
+    const createAgent = vi.fn(async () => ({ agent: { followup }, dispose: async () => undefined }))
+    ctx.provide('agents', { create: createAgent } as never)
+
+    await runAnalysis(ctx, 'C:\\proj', 'x')
+
+    expect(createAgent).toHaveBeenCalledWith(expect.not.objectContaining({ setup: expect.anything() }))
+    expect(createAgent).toHaveBeenCalledWith(expect.objectContaining({ meta: { cwd: 'C:\\proj' } }))
+  })
 })

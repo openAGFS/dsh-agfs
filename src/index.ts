@@ -19,6 +19,7 @@ import type {} from '@deepseek-ai/dsh-host-webserver'
 import type {} from '@deepseek-ai/dsh-agent'
 import type {} from '@deepseek-ai/dsh-workspace'
 import type {} from '@deepseek-ai/dsh-agent-default-model'
+import type {} from '@deepseek-ai/dsh-agent-presets'
 import { SessionId } from '@deepseek-ai/dsh-session'
 import { createUserMessage } from '@deepseek-ai/dsh-llm'
 import { dispatchApi, getClientIp, getSafePath, readJsonBody, resolveAsset, writeOutcome } from './handler.ts'
@@ -131,11 +132,29 @@ export async function runAnalysis(
   // optional; without it the agent is created with no options, as before.
   const defaultModel = ctx.get('agentDefaultModel')
   const selection = defaultModel?.currentSelection()
+  // An analysis agent must also join the same agent preset a manually created
+  // session would: the web surface keeps its tool rows (tool-fs, tool-pwsh,
+  // goal, web, …) off the host plane and mounts them per session through the
+  // preset roster, so a preset-less agent sees only the plugin's own tools.
+  // Resolve the roster's default preset and mount it in the create setup,
+  // mirroring the host api-proxy's composeAgent path exactly.
+  const presets = ctx.get('agentPresets')
+  const composition = presets === undefined
+    ? undefined
+    : { presets, presetId: (await presets.resolve(undefined)).id }
   const sessionId = SessionId(`analysis-${randomUUID()}`)
   const handle = await agents.create({
     sessionId,
-    meta: { cwd: targetPath },
     ...(selection === undefined ? {} : { agentOptions: { provider: selection.provider, model: selection.model } }),
+    meta: {
+      cwd: targetPath,
+      ...(composition === undefined ? {} : { agentPreset: composition.presetId }),
+    },
+    ...(composition === undefined ? {} : {
+      setup: async (agentCtx: Context): Promise<void> => {
+        await composition.presets.mount(agentCtx, composition.presetId)
+      },
+    }),
   })
   // Group the session under the workspace: membership requires an explicit
   // attach (the GUI's normal session flow attaches on creation).
