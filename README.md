@@ -27,6 +27,7 @@ English | [中文](README.zh.md)
 - **一键AI分析** — right-click a file/folder → enter a requirement → dsh creates a workspace for that directory and wakes a fresh session whose agent analyzes it (local mode only). The analysis session uses the host's default model and joins the same agent preset as a manually created session, so it gets the full standard tool set (read/write/glob/grep, shell, goal, web search, …), not just the browser tools.
 - **Full file browser** — list/search, text preview (markdown, code, logs), image preview, and create/rename/copy/delete folders.
 - **`/dsh-agfs` command** — opens the file browser in the system default browser and **automatically navigates to the current session's workspace directory** (session cwd); switch workspaces and it follows.
+- **`/files` composer command** — a client-side slash entry: opens the file browser in a **new tab of the user's own browser**, deep-linked to the session cwd — the path that works on headless/remote deployments (the host-side command cannot open a browser on a display-less host).
 - **`browse_files` / `read_file` model tools** — the model can list or recursively search the browser root, and read text files under it, directly.
 - **Path safety** — browsing confined to the root, `strictRoot` real-path checks, symlink/junction escape interception (clean 400 envelope), `readOnly` mode, `remoteMode`.
 - **Offline frontend** — React/ReactDOM ship in the package; boots without a CDN or Babel.
@@ -82,6 +83,7 @@ then `dsh web --patch ./overlay.yml`. Plugin code changes need a dsh restart; fr
 ## Usage
 
 - Run `/dsh-agfs` in the dialog: the system default browser opens the file browser and reports its URL; **when the current session carries a workspace directory (session cwd), the browser boots directly at that workspace**.
+- Type `/files` and pick it from the slash menu: the file browser opens in a new tab **in the browser you are using**, navigated to the session workspace — the right path for headless/remote deployments (the host command `/dsh-agfs` remains, unchanged).
 - With `openOnCommand: false` the URL is only reported, the browser is not opened.
 - Click a file to preview text/images; use the toolbar search (recursive, 200-hit cap); the sidebar offers quick access (Desktop/Downloads/Documents…), custom roots, and drives; right-click for create folder / rename / copy / delete (subject to `readOnly`).
 
@@ -126,7 +128,7 @@ The parameter schemas and descriptions flow into the assembled prompt like every
 - **Font Awesome icons load from cdnjs** — boot no longer needs a CDN (React/ReactDOM are vendored and Babel is eliminated by the precompiled `app.js`), but the toolbar icons still come from cdnjs; without network access the app works without icons.
 - **Shallow search only** — `search` matches entry names in one directory (200-hit cap); recursive content search is not implemented.
 - **Thumbnails stream the original image** — no resize is performed; large images are sent in full and scaled by CSS.
-- **`openOnCommand` spawns on the host** — the browser opens on the machine running dsh, which is correct for a loopback deployment but surprising for remote clients.
+- **`openOnCommand` spawns on the host** — the browser opens on the machine running dsh, which is correct for a loopback deployment but surprising for remote clients; remote deployments should use the composer `/files` entry (opens client-side, see Usage).
 
 ## Development
 
